@@ -1,18 +1,17 @@
 import path from 'path'
 import dotenv from 'dotenv'
-import { Telegraf, Context } from 'telegraf'
 
 const pathToEnv: string = path.resolve('.env')
 dotenv.config({ path: pathToEnv })
 
+import { Telegraf, Context } from 'telegraf'
+
 const bot: Telegraf = new Telegraf(process.env.TG_BOT_KEY || 'error')
 
-bot.on('text', async (ctx: Context) => {})
+bot.on('text', async (ctx: Context) => {
+    console.log(ctx.from)
+})
 
 bot.launch()
-    .then(() => {
-        console.log('Bot started.')
-    })
-    .catch(() => {
-        console.log('Error starting bot')
-    })
+    .then((): void => console.log('Bot started.'))
+    .catch((err: Error): void => console.log(err))
