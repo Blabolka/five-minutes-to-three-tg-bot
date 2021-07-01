@@ -3,15 +3,11 @@ import dotenv from 'dotenv'
 
 const pathToEnv: string = path.resolve('.env')
 dotenv.config({ path: pathToEnv })
+import TelegramBot, { Message } from 'node-telegram-bot-api'
 
-import { Telegraf, Context } from 'telegraf'
+const bot: TelegramBot = new TelegramBot(process.env.TG_BOT_KEY || 'error', { polling: true })
+console.log('Bot started.')
 
-const bot: Telegraf = new Telegraf(process.env.TG_BOT_KEY || 'error')
-
-bot.on('text', async (ctx: Context) => {
-    console.log(ctx.from)
+bot.on('message', (ctx: Message) => {
+    console.log(ctx)
 })
-
-bot.launch()
-    .then((): void => console.log('Bot started.'))
-    .catch((err: Error): void => console.log(err))
