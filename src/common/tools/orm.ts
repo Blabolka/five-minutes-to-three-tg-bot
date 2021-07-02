@@ -25,7 +25,7 @@ async function init() {
         await client.connect()
         await dropDatabaseTables(client)
         // getting text from initdb.pgsql for querying
-        const sqlInit: string = await fs.readFile('./src/sqls/initdb.pgsql', {
+        const sqlInit: string = await fs.readFile('./src/common/sqls/initdb.pgsql', {
             encoding: 'UTF-8',
         })
         // call method that convert text to query sql commands
