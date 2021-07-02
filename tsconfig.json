@@ -19,9 +19,12 @@
       "@utils/*": ["common/utils/*"],
       "@enums/*": ["common/enums/*"],
       "@controllers/*": ["controllers/*"],
-      "@interfaces/*": ["common/interfaces/*"],
+      "@interfaces/*": ["common/interfaces/*"]
 },
     "esModuleInterop": true,                        /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "resolveJsonModule": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

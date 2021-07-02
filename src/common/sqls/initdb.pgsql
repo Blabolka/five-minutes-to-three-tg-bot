@@ -1,10 +1,10 @@
--- Install modules
+-- Install module for generating unique identifiers
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Create an enum of user roles
 CREATE TYPE role as ENUM ('student', 'group admin', 'admin');
 
--- Create an enum of available language codes
+-- Create an enum of available language codes (need to localisation in future)
 CREATE TYPE langcode as ENUM ('ru', 'en');
 
 CREATE TABLE users

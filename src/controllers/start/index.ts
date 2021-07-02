@@ -1,25 +1,34 @@
 import bot from '@bot'
-import { KeyboardButton, Message } from 'node-telegram-bot-api'
-import { IUser } from '@interfaces/IUser'
-import { findOrCreateUser, mapUser } from '@utils/users'
+import { CallbackQuery, InlineKeyboardButton, Message } from 'node-telegram-bot-api'
+import { saveUser } from '@utils/start'
 
-const addSubject: KeyboardButton = { text: 'Добавить предмет' }
-const deleteSubject: KeyboardButton = { text: 'Удалить предмет' }
-const keyboard: KeyboardButton[][] = [[addSubject, deleteSubject]]
+const notificationMenu: InlineKeyboardButton = { text: 'Уведомления о парах', callback_data: 'notification' }
+const keyboard: InlineKeyboardButton[][] = [[notificationMenu]]
 
-bot.onText(/\/start/, async (msg: Message) => {
-    try {
-        if (msg.from) {
-            const userInfo: IUser = mapUser(msg.from)
-            await findOrCreateUser(userInfo)
-        }
+// if user start using bot and send command '/start'
+bot.on('message', async (msg: Message) => {
+    if (msg.text === '/start' && msg.from) {
+        // save user to database
+        await saveUser(msg.from)
 
-        await bot.sendMessage(msg.chat.id, 'Добро пожаловать! Выбери нужную тебе категорию.', {
+        await bot.sendMessage(msg.from.id, 'Добро пожаловать!')
+        await bot.sendMessage(msg.from.id, 'Выбери нужную тебе категорию.', {
             reply_markup: {
-                keyboard: keyboard,
+                inline_keyboard: keyboard,
             },
         })
-    } catch (err) {
-        console.log(err)
+    }
+})
+
+// if user press button 'back' from another controller
+bot.on('callback_query', async (callback: CallbackQuery) => {
+    if (callback.data === 'start') {
+        await bot.editMessageReplyMarkup(
+            { inline_keyboard: keyboard },
+            {
+                chat_id: callback.message?.chat.id,
+                message_id: callback.message?.message_id,
+            },
+        )
     }
 })

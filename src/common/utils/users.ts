@@ -1,10 +1,10 @@
 import db from '@db'
-import { IUser } from '@interfaces/IUser'
+import { IUserGet, IUserRegister } from '@interfaces/IUserRegister'
 import { User } from 'node-telegram-bot-api'
 import { Role } from '@enums/User'
 import { QueryResult } from 'pg'
 
-export function mapUser(user: User): IUser {
+export function mapUser(user: User): IUserRegister {
     return {
         telegram_id: user.id,
         is_bot: user.is_bot,
@@ -16,7 +16,12 @@ export function mapUser(user: User): IUser {
     }
 }
 
-export async function findOrCreateUser(user: IUser): Promise<string> {
+export async function findAllUsers(): Promise<IUserGet[]> {
+    const result: QueryResult = await db.query(`SELECT * FROM users`)
+    return result.rows
+}
+
+export async function findOrCreateUser(user: IUserRegister): Promise<string> {
     const result: QueryResult = await db.query(
         `INSERT INTO users (telegram_id, is_bot, first_name, last_name, username, language_code, role)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
