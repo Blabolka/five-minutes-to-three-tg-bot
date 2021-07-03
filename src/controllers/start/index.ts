@@ -7,28 +7,36 @@ const keyboard: InlineKeyboardButton[][] = [[notificationMenu]]
 
 // if user start using bot and send command '/start'
 bot.on('message', async (msg: Message) => {
-    if (msg.text === '/start' && msg.from) {
-        // save user to database
-        await saveUser(msg.from)
+    try {
+        if (msg.text === '/start' && msg.from) {
+            // save user to database
+            await saveUser(msg.from)
 
-        await bot.sendMessage(msg.from.id, 'Добро пожаловать!')
-        await bot.sendMessage(msg.from.id, 'Выбери нужную тебе категорию.', {
-            reply_markup: {
-                inline_keyboard: keyboard,
-            },
-        })
+            await bot.sendChatAction(msg.from.id, 'typing')
+            await bot.sendMessage(msg.from.id, 'Добро пожаловать!\nВыберите нужную вам категорию.', {
+                reply_markup: {
+                    inline_keyboard: keyboard,
+                },
+            })
+        }
+    } catch (err) {
+        console.log(err)
     }
 })
 
 // if user press button 'back' from another controller
 bot.on('callback_query', async (callback: CallbackQuery) => {
-    if (callback.data === 'start') {
-        await bot.editMessageReplyMarkup(
-            { inline_keyboard: keyboard },
-            {
-                chat_id: callback.message?.chat.id,
-                message_id: callback.message?.message_id,
-            },
-        )
+    try {
+        if (callback.data === 'start') {
+            await bot.editMessageReplyMarkup(
+                { inline_keyboard: keyboard },
+                {
+                    chat_id: callback.message?.chat.id,
+                    message_id: callback.message?.message_id,
+                },
+            )
+        }
+    } catch (err) {
+        console.log(err)
     }
 })

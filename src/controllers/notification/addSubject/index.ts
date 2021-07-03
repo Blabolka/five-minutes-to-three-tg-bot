@@ -1,0 +1,68 @@
+import bot from '@bot'
+import { CallbackQuery, InlineKeyboardButton, Message } from 'node-telegram-bot-api'
+import { parseAddSubjectText, validateAddSubjectText } from '@utils/notifications'
+import { ISubjectAdd } from '@interfaces/Subject'
+import { createSubject, subjectExistsOnTime } from '@utils/subjects'
+
+// after click 'add subject' on notifications page
+bot.on('callback_query', async (callback: CallbackQuery) => {
+    try {
+        if (callback.data === 'addSubject' && callback.message) {
+            // listener for input text
+            bot.addListener('text', textListener)
+            const text: string =
+                'Хорошо. Отправьте сообщение в таком формате:\n\n' +
+                'Название предмета\n' +
+                'День недели (1-пн, 7-вс)\n' +
+                'Время (например: 13:30)\n' +
+                'Ссылка на пару (не обязательно)\n' +
+                '\nЧтобы отменить действие отправьте /cancel'
+            await bot.sendMessage(callback.message.chat.id, text)
+        }
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// after click 'Add subject' (auto deleting if user input right format text)
+const textListener: (msg: Message) => void = async (msg: Message) => {
+    try {
+        const notification: InlineKeyboardButton = { text: '« Назад', callback_data: 'notification' }
+        const mainMenu: InlineKeyboardButton = { text: 'Главное меню', callback_data: 'start' }
+        const keyboard: InlineKeyboardButton[][] = [[notification, mainMenu]]
+
+        if (msg.text === '/cancel') {
+            bot.removeListener('text', textListener)
+            await bot.sendMessage(msg.chat.id, 'Выберите действие.', {
+                reply_markup: {
+                    inline_keyboard: keyboard,
+                },
+            })
+            return
+        }
+
+        if (msg.text) {
+            const validateInfo: string | boolean = validateAddSubjectText(msg.text)
+            if (typeof validateInfo === 'string') {
+                await bot.sendMessage(msg.chat.id, 'Пожалуйста, введите корректные данные.\n\n' + validateInfo)
+            } else if (!validateInfo) {
+                await bot.sendMessage(msg.chat.id, 'Пожалуйста, введите корректные данные.')
+            } else if (validateInfo && msg.from) {
+                const subjectInfo: ISubjectAdd = await parseAddSubjectText(msg.text, msg.from)
+                if (!(await subjectExistsOnTime(subjectInfo))) {
+                    await createSubject(subjectInfo)
+                    bot.removeListener('text', textListener)
+                    await bot.sendMessage(msg.chat.id, 'Уведомление было успешно добавлено!\nВыберите действие.', {
+                        reply_markup: {
+                            inline_keyboard: keyboard,
+                        },
+                    })
+                } else {
+                    await bot.sendMessage(msg.chat.id, 'Это время уже занято другим предметом.')
+                }
+            }
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
