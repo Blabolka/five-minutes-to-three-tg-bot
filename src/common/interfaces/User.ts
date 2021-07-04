@@ -9,7 +9,3 @@ export interface IUserRegister {
     language_code: string | null
     role: Role
 }
-
-export interface IUserGet extends IUserRegister {
-    id: string
-}
