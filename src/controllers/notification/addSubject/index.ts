@@ -18,6 +18,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 'Ссылка на пару (не обязательно)\n' +
                 '\nОтменить действие: /cancel'
             await bot.sendMessage(callback.message.chat.id, text)
+            await bot.answerCallbackQuery(callback.id)
         }
     } catch (err) {
         console.log(err)
@@ -27,7 +28,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 // after click 'Add subject' (auto deleted listener if user input right format text)
 const textListener: (msg: Message) => void = async (msg: Message) => {
     try {
-        const notification: InlineKeyboardButton = { text: '« Назад', callback_data: 'notification' }
+        const notification: InlineKeyboardButton = { text: '« Назад', callback_data: 'notifications' }
         const mainMenu: InlineKeyboardButton = { text: '🏠 Главное меню', callback_data: 'start' }
         const keyboard: InlineKeyboardButton[][] = [[notification, mainMenu]]
 

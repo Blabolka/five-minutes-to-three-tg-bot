@@ -14,11 +14,12 @@ CREATE TABLE users
     id              uuid    PRIMARY KEY DEFAULT uuid_generate_v4(),
     telegram_id     INT UNIQUE,
     is_bot          BOOLEAN,
-    first_name      VARCHAR(255),
-    last_name       VARCHAR(255),
-    username        VARCHAR(255),
+    first_name      VARCHAR(64),
+    last_name       VARCHAR(64),
+    username        VARCHAR(32),
     language_code   langcode DEFAULT 'ru',
     role            role,
+    notifications   BOOLEAN NOT NULL DEFAULT false,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -26,8 +27,8 @@ CREATE TABLE subjects
 (
     id              uuid    PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id         uuid NOT NULL,
-    title           VARCHAR(255),
-    link            VARCHAR(255),
+    title           VARCHAR(30),
+    link            VARCHAR(100),
     week_day        week_day NOT NULL,
     time            TIMESTAMPTZ NOT NULL,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

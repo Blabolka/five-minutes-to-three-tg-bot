@@ -2,6 +2,8 @@ import { ISubjectAdd } from '@interfaces/Subject'
 import { WeekDay } from '@enums/Subject'
 import { User } from 'node-telegram-bot-api'
 import { findOrCreateUser, mapUser } from '@utils/users'
+import db from '@db'
+import { QueryResult } from 'pg'
 
 /**
  * Validate text from user for add subject
@@ -21,9 +23,9 @@ export function validateAddSubjectText(text: string): string | boolean {
         }
 
         // validate subject title row
-        // 255 - max length of string in database
-        if (rows[0].length > 255) {
-            error += 'Слишком длинное название предмета (нельзя больше 255 символов).'
+        // 30 - max length of string in database
+        if (rows[0].length > 30) {
+            error += 'Слишком длинное название предмета (нельзя больше 30 символов).'
             return error
         }
 
@@ -50,8 +52,8 @@ export function validateAddSubjectText(text: string): string | boolean {
 
         // validate link row (if link exists)
         if (rows[3]) {
-            if (rows[3].length > 255) {
-                error += 'Слишком длинная ссылка (нельзя больше 255 символов).'
+            if (rows[3].length > 100) {
+                error += 'Слишком длинная ссылка (нельзя больше 100 символов).'
                 return error
             }
         }
@@ -90,4 +92,24 @@ export async function parseAddSubjectText(text: string, user: User): Promise<ISu
         time: time,
         link: link,
     }
+}
+
+export async function toggleUserNotifications(userId: string): Promise<void> {
+    await db.query(
+        `UPDATE users
+         SET notifications = NOT notifications
+         WHERE id = $1`,
+        [userId],
+    )
+}
+
+// return true if user activate notifications, else return false
+export async function getUserNotificationsStatus(userId: string): Promise<boolean> {
+    const result: QueryResult = await db.query(
+        `SELECT notifications
+         FROM users
+         WHERE id = $1`,
+        [userId],
+    )
+    return result.rows[0].notifications
 }
