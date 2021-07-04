@@ -16,7 +16,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 'День недели (1-пн, 7-вс)\n' +
                 'Время (например: 13:30)\n' +
                 'Ссылка на пару (не обязательно)\n' +
-                '\nЧтобы отменить действие отправьте /cancel'
+                '\nОтменить действие: /cancel'
             await bot.sendMessage(callback.message.chat.id, text)
         }
     } catch (err) {
@@ -28,7 +28,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 const textListener: (msg: Message) => void = async (msg: Message) => {
     try {
         const notification: InlineKeyboardButton = { text: '« Назад', callback_data: 'notification' }
-        const mainMenu: InlineKeyboardButton = { text: 'Главное меню', callback_data: 'start' }
+        const mainMenu: InlineKeyboardButton = { text: '🏠 Главное меню', callback_data: 'start' }
         const keyboard: InlineKeyboardButton[][] = [[notification, mainMenu]]
 
         // if user want cancel action and go back

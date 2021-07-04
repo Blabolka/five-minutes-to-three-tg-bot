@@ -2,7 +2,7 @@ import bot from '@bot'
 import { CallbackQuery, InlineKeyboardButton, Message } from 'node-telegram-bot-api'
 import { findOrCreateUser, mapUser } from '@utils/users'
 
-const notificationMenu: InlineKeyboardButton = { text: 'Уведомления о парах', callback_data: 'notification' }
+const notificationMenu: InlineKeyboardButton = { text: '🔔 Уведомления о парах', callback_data: 'notification' }
 const keyboard: InlineKeyboardButton[][] = [[notificationMenu]]
 
 // if user start using bot and send command '/start'
