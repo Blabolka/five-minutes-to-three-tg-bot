@@ -1,5 +1,6 @@
 import { Pool } from 'pg'
 
+// set parameters for connection to db
 const db: Pool = new Pool({
     user: process.env.PGUSER || 'postgres',
     database: process.env.PGDATABASE || 'postgres',

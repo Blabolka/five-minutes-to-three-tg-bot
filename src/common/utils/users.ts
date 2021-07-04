@@ -1,5 +1,5 @@
 import db from '@db'
-import { IUserGet, IUserRegister } from '@interfaces/IUserRegister'
+import { IUserRegister } from '@interfaces/User'
 import { User } from 'node-telegram-bot-api'
 import { Role } from '@enums/User'
 import { QueryResult } from 'pg'
@@ -14,11 +14,6 @@ export function mapUser(user: User): IUserRegister {
         language_code: user.language_code || 'ru',
         role: Role.student,
     }
-}
-
-export async function findAllUsers(): Promise<IUserGet[]> {
-    const result: QueryResult = await db.query(`SELECT * FROM users`)
-    return result.rows
 }
 
 export async function findOrCreateUser(user: IUserRegister): Promise<string> {
