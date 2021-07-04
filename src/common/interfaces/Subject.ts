@@ -9,6 +9,7 @@ export interface ISubjectAdd {
 }
 
 export interface ISubjectInfo {
+    id: string
     title: string
     week_day: WeekDay
     time: Date

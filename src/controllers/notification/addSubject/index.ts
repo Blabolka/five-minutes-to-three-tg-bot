@@ -1,5 +1,5 @@
 import bot from '@bot'
-import { CallbackQuery, InlineKeyboardButton, Message } from 'node-telegram-bot-api'
+import { CallbackQuery, InlineKeyboardButton, Message, User } from 'node-telegram-bot-api'
 import { parseAddSubjectText, validateAddSubjectText } from '@utils/notifications'
 import { ISubjectAdd } from '@interfaces/Subject'
 import { createSubject, subjectExistsOnTime } from '@utils/subjects'
@@ -45,8 +45,7 @@ bot.on('text', async (msg: Message) => {
         if (msg.text && msg.from) {
             for (const command of await bot.getMyCommands()) {
                 if (command.command === msg.text.substring(1)) {
-                    const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
-                    usersTrackedListener.splice(indexUser, 1)
+                    removeUserFromTrackList(msg.from)
                     return
                 }
             }
@@ -54,8 +53,7 @@ bot.on('text', async (msg: Message) => {
 
         // if user want cancel action and go back
         if (msg.text === '/cancel' && msg.from) {
-            const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
-            usersTrackedListener.splice(indexUser, 1)
+            removeUserFromTrackList(msg.from)
             await bot.sendMessage(msg.chat.id, 'Выберите действие.', {
                 reply_markup: {
                     inline_keyboard: keyboard,
@@ -79,8 +77,7 @@ bot.on('text', async (msg: Message) => {
                 if (!(await subjectExistsOnTime(subjectInfo))) {
                     // if all is OK
                     await createSubject(subjectInfo)
-                    const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
-                    usersTrackedListener.splice(indexUser, 1)
+                    removeUserFromTrackList(msg.from)
                     await bot.sendMessage(msg.chat.id, 'Уведомление было успешно добавлено!\nВыберите действие.', {
                         reply_markup: {
                             inline_keyboard: keyboard,
@@ -96,3 +93,12 @@ bot.on('text', async (msg: Message) => {
         console.log(err)
     }
 })
+
+function removeUserFromTrackList(user: User): void {
+    // leave only unique id's
+    usersTrackedListener.filter((value: number, index: number, array: number[]) => {
+        return array.indexOf(value) === index
+    })
+    const indexUser: number = usersTrackedListener.indexOf(user.id)
+    usersTrackedListener.splice(indexUser, 1)
+}

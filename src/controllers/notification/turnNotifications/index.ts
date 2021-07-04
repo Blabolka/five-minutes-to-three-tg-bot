@@ -15,9 +15,9 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             let newNotificationStatus: InlineKeyboardButton
             const keyboard: InlineKeyboardButton[][] = callback.message.reply_markup.inline_keyboard
             if (await getUserNotificationsStatus(userId)) {
-                newNotificationStatus = { text: 'Выключить уведомления', callback_data: 'turnNotifications' }
+                newNotificationStatus = { text: '🔔 Выключить уведомления', callback_data: 'turnNotifications' }
             } else {
-                newNotificationStatus = { text: 'Включить уведомления', callback_data: 'turnNotifications' }
+                newNotificationStatus = { text: '🔕 Включить уведомления', callback_data: 'turnNotifications' }
             }
             keyboard[1][0] = newNotificationStatus
 

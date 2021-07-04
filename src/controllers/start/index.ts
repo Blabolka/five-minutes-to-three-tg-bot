@@ -28,13 +28,13 @@ bot.on('message', async (msg: Message) => {
 bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
         if (callback.data === 'start') {
-            await bot.editMessageReplyMarkup(
-                { inline_keyboard: keyboard },
-                {
-                    chat_id: callback.message?.chat.id,
-                    message_id: callback.message?.message_id,
+            await bot.editMessageText('Добро пожаловать!\nВыберите нужную вам категорию.', {
+                reply_markup: {
+                    inline_keyboard: keyboard,
                 },
-            )
+                chat_id: callback.message?.chat.id,
+                message_id: callback.message?.message_id,
+            })
             await bot.answerCallbackQuery(callback.id)
         }
     } catch (err) {

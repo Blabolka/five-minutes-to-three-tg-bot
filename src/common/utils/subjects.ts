@@ -26,7 +26,7 @@ export async function subjectExistsOnTime(subject: ISubjectAdd): Promise<boolean
 
 export async function findAllSubjectsByUserId(userId: string): Promise<ISubjectInfo[]> {
     const result: QueryResult = await db.query(
-        `SELECT title, week_day, time, link
+        `SELECT id, title, week_day, time, link
          FROM subjects
          WHERE user_id = $1`,
         [userId],
@@ -34,6 +34,7 @@ export async function findAllSubjectsByUserId(userId: string): Promise<ISubjectI
     const subjects: ISubjectInfo[] = []
     for (const row of result.rows) {
         subjects.push({
+            id: row.id,
             title: row.title,
             week_day: row.week_day,
             time: new Date(row.time),
@@ -42,4 +43,8 @@ export async function findAllSubjectsByUserId(userId: string): Promise<ISubjectI
     }
 
     return subjects
+}
+
+export async function deleteSubjectById(subjectId: string): Promise<void> {
+    await db.query(`DELETE FROM subjects WHERE id = $1`, [subjectId])
 }

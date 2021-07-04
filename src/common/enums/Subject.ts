@@ -7,3 +7,13 @@ export enum WeekDay {
     saturday = 'saturday',
     sunday = 'sunday',
 }
+
+export enum WeekDayShortRus {
+    monday = 'пн',
+    tuesday = 'вт',
+    wednesday = 'ср',
+    thursday = 'чт',
+    friday = 'пт',
+    saturday = 'сб',
+    sunday = 'вс',
+}

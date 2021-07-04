@@ -13,22 +13,22 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             let turn: InlineKeyboardButton
             const userId: string = await findOrCreateUser(mapUser(callback.from))
             if (await getUserNotificationsStatus(userId)) {
-                turn = { text: 'Выключить уведомления', callback_data: 'turnNotifications' }
+                turn = { text: '🔔 Выключить уведомления', callback_data: 'turnNotifications' }
             } else {
-                turn = { text: 'Включить уведомления', callback_data: 'turnNotifications' }
+                turn = { text: '🔕 Включить уведомления', callback_data: 'turnNotifications' }
             }
 
             const goBack: InlineKeyboardButton = { text: '« Назад', callback_data: 'start' }
 
             const keyboard: InlineKeyboardButton[][] = [[addSubject, deleteSubject], [turn], [goBack]]
 
-            await bot.editMessageReplyMarkup(
-                { inline_keyboard: keyboard },
-                {
-                    chat_id: callback.message?.chat.id,
-                    message_id: callback.message?.message_id,
+            await bot.editMessageText('Выберите нужную вам категорию.', {
+                reply_markup: {
+                    inline_keyboard: keyboard,
                 },
-            )
+                chat_id: callback.message?.chat.id,
+                message_id: callback.message?.message_id,
+            })
             await bot.answerCallbackQuery(callback.id)
         }
     } catch (err) {
