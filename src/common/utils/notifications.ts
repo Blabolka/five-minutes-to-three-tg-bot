@@ -41,7 +41,7 @@ export function validateAddSubjectText(text: string): string | boolean {
         if (splitDate.length === 2) {
             const first: number = Number.parseInt(splitDate[0])
             const second: number = Number.parseInt(splitDate[1])
-            if (!first || !second || first < 0 || first > 23 || second < 0 || second > 59) {
+            if (isNaN(first) || isNaN(second) || first < 0 || first > 23 || second < 0 || second > 59) {
                 error += 'Некорректные значения во времени пары.'
                 return error
             }

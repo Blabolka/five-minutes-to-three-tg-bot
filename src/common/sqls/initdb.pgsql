@@ -28,8 +28,8 @@ CREATE TABLE subjects
     id              uuid    PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id         uuid NOT NULL,
     title           VARCHAR(30),
-    link            VARCHAR(100),
     week_day        week_day NOT NULL,
     time            TIMESTAMPTZ NOT NULL,
+    link            VARCHAR(100),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

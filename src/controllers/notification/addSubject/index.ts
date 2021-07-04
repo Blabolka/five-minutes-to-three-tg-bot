@@ -8,8 +8,8 @@ import { createSubject, subjectExistsOnTime } from '@utils/subjects'
 bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
         if (callback.data === 'addSubject' && callback.message) {
-            // listener for input text
-            bot.addListener('text', textListener)
+            // add user to list of tracked listener on input text
+            usersTrackedListener.push(callback.from.id)
             const text: string =
                 'Хорошо. Отправьте сообщение в таком формате:\n\n' +
                 'Название предмета\n' +
@@ -25,16 +25,37 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
     }
 })
 
-// after click 'Add subject' (auto deleted listener if user input right format text)
-const textListener: (msg: Message) => void = async (msg: Message) => {
+// array of users that will be listened by the listener
+const usersTrackedListener: number[] = []
+bot.on('text', async (msg: Message) => {
     try {
         const notification: InlineKeyboardButton = { text: '« Назад', callback_data: 'notifications' }
         const mainMenu: InlineKeyboardButton = { text: '🏠 Главное меню', callback_data: 'start' }
         const keyboard: InlineKeyboardButton[][] = [[notification, mainMenu]]
 
+        // if the user is not tracked by this listener
+        if (msg.from) {
+            const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
+            if (indexUser === -1) {
+                return
+            }
+        }
+
+        // if user input command from command's list
+        if (msg.text && msg.from) {
+            for (const command of await bot.getMyCommands()) {
+                if (command.command === msg.text.substring(1)) {
+                    const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
+                    usersTrackedListener.splice(indexUser, 1)
+                    return
+                }
+            }
+        }
+
         // if user want cancel action and go back
-        if (msg.text === '/cancel') {
-            bot.removeListener('text', textListener)
+        if (msg.text === '/cancel' && msg.from) {
+            const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
+            usersTrackedListener.splice(indexUser, 1)
             await bot.sendMessage(msg.chat.id, 'Выберите действие.', {
                 reply_markup: {
                     inline_keyboard: keyboard,
@@ -43,7 +64,7 @@ const textListener: (msg: Message) => void = async (msg: Message) => {
             return
         }
 
-        if (msg.text) {
+        if (msg.text && msg.from) {
             const validateInfo: string | boolean = validateAddSubjectText(msg.text)
 
             if (typeof validateInfo === 'string') {
@@ -52,13 +73,14 @@ const textListener: (msg: Message) => void = async (msg: Message) => {
             } else if (!validateInfo) {
                 // if unexpected error show message to user
                 await bot.sendMessage(msg.chat.id, 'Пожалуйста, введите корректные данные.')
-            } else if (validateInfo && msg.from) {
+            } else if (validateInfo) {
                 // if user input right format text
                 const subjectInfo: ISubjectAdd = await parseAddSubjectText(msg.text, msg.from)
                 if (!(await subjectExistsOnTime(subjectInfo))) {
                     // if all is OK
                     await createSubject(subjectInfo)
-                    bot.removeListener('text', textListener)
+                    const indexUser: number = usersTrackedListener.indexOf(msg.from.id)
+                    usersTrackedListener.splice(indexUser, 1)
                     await bot.sendMessage(msg.chat.id, 'Уведомление было успешно добавлено!\nВыберите действие.', {
                         reply_markup: {
                             inline_keyboard: keyboard,
@@ -73,4 +95,4 @@ const textListener: (msg: Message) => void = async (msg: Message) => {
     } catch (err) {
         console.log(err)
     }
-}
+})
