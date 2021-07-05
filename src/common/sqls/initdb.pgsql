@@ -4,9 +4,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Create an enum of user roles
 CREATE TYPE role as ENUM ('student', 'group admin', 'admin');
 
--- Create an enum of available language codes (need to localisation in future)
-CREATE TYPE langcode as ENUM ('ru', 'en');
-
 CREATE TYPE week_day as ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
 
 CREATE TABLE users
@@ -17,7 +14,7 @@ CREATE TABLE users
     first_name      VARCHAR(64),
     last_name       VARCHAR(64),
     username        VARCHAR(32),
-    language_code   langcode DEFAULT 'ru',
+    language_code   VARCHAR(4) DEFAULT 'ru',
     role            role,
     notifications   BOOLEAN NOT NULL DEFAULT false,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

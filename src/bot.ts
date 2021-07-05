@@ -1,6 +1,6 @@
+import bodyParser from 'body-parser'
 import TelegramBot from 'node-telegram-bot-api'
 import express, { Application, Request, Response, Router } from 'express'
-import bodyParser from 'body-parser'
 
 // launch bot
 const bot: TelegramBot = new TelegramBot(process.env.TOKEN || 'error')

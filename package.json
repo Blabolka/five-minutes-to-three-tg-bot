@@ -48,6 +48,7 @@
   "_moduleAliases": {
     "@bot": "dist/bot",
     "@db": "dist/common/tools/db",
+    "@tools": "dist/common/tools",
     "@utils": "dist/common/utils",
     "@enums": "dist/common/enums",
     "@controllers": "dist/controllers",

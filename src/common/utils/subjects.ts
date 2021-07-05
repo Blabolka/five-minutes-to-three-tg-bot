@@ -1,6 +1,6 @@
 import db from '@db'
-import { ISubjectAdd, ISubjectInfo } from '@interfaces/Subject'
 import { QueryResult } from 'pg'
+import { ISubjectAdd, ISubjectInfo } from '@interfaces/Subject'
 
 export async function createSubject(subject: ISubjectAdd): Promise<string> {
     const result: QueryResult = await db.query(
@@ -24,27 +24,50 @@ export async function subjectExistsOnTime(subject: ISubjectAdd): Promise<boolean
     return exists.rowCount > 0
 }
 
+export async function findAllSubjects(): Promise<ISubjectInfo[]> {
+    const result: QueryResult = await db.query(
+        `SELECT id, user_id, title, week_day, time, link
+         FROM subjects`,
+    )
+    const subjects: ISubjectInfo[] = []
+    for (const row of result.rows) {
+        subjects.push(mapSubject(row))
+    }
+
+    return subjects
+}
+
 export async function findAllSubjectsByUserId(userId: string): Promise<ISubjectInfo[]> {
     const result: QueryResult = await db.query(
-        `SELECT id, title, week_day, time, link
+        `SELECT id, user_id, title, week_day, time, link
          FROM subjects
          WHERE user_id = $1`,
         [userId],
     )
     const subjects: ISubjectInfo[] = []
     for (const row of result.rows) {
-        subjects.push({
-            id: row.id,
-            title: row.title,
-            week_day: row.week_day,
-            time: new Date(row.time),
-            link: row.link ? row.link : null,
-        })
+        subjects.push(mapSubject(row))
     }
 
     return subjects
 }
 
+function mapSubject(row: ISubjectInfo): ISubjectInfo {
+    return {
+        id: row.id,
+        user_id: row.user_id,
+        title: row.title,
+        week_day: row.week_day,
+        time: new Date(row.time),
+        link: row.link ? row.link : null,
+    }
+}
+
 export async function deleteSubjectById(subjectId: string): Promise<void> {
-    await db.query(`DELETE FROM subjects WHERE id = $1`, [subjectId])
+    await db.query(
+        `DELETE
+         FROM subjects
+         WHERE id = $1`,
+        [subjectId],
+    )
 }

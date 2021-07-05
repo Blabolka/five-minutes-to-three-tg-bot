@@ -16,6 +16,7 @@
     "paths": {
       "@bot": ["bot"],
       "@db": ["common/tools/db"],
+      "@tools/*": ["common/tools/*"],
       "@utils/*": ["common/utils/*"],
       "@enums/*": ["common/enums/*"],
       "@controllers/*": ["controllers/*"],

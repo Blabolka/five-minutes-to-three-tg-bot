@@ -1,9 +1,9 @@
-import { ISubjectAdd } from '@interfaces/Subject'
-import { WeekDay } from '@enums/Subject'
-import { User } from 'node-telegram-bot-api'
-import { findOrCreateUser, mapUser } from '@utils/users'
 import db from '@db'
 import { QueryResult } from 'pg'
+import { WeekDay } from '@enums/Subject'
+import { User } from 'node-telegram-bot-api'
+import { ISubjectAdd } from '@interfaces/Subject'
+import { findOrCreateUser, mapUserRegister } from '@utils/users'
 
 /**
  * Validate text from user for add subject
@@ -70,7 +70,7 @@ export async function parseAddSubjectText(text: string, user: User): Promise<ISu
     const rows: string[] = text.split('\n')
 
     // find userId from database
-    const userId: string = await findOrCreateUser(mapUser(user))
+    const userId: string = await findOrCreateUser(mapUserRegister(user))
     // parse title from text
     const title: string = rows[0]
 

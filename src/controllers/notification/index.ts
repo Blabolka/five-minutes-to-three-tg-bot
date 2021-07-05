@@ -1,7 +1,7 @@
 import bot from '@bot'
-import { CallbackQuery, InlineKeyboardButton } from 'node-telegram-bot-api'
+import { findOrCreateUser, mapUserRegister } from '@utils/users'
 import { getUserNotificationsStatus } from '@utils/notifications'
-import { findOrCreateUser, mapUser } from '@utils/users'
+import { CallbackQuery, InlineKeyboardButton } from 'node-telegram-bot-api'
 
 // if user press button 'notification' from another controller
 bot.on('callback_query', async (callback: CallbackQuery) => {
@@ -11,7 +11,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             const deleteSubject: InlineKeyboardButton = { text: 'Удалить предмет', callback_data: 'deleteSubject' }
 
             let turn: InlineKeyboardButton
-            const userId: string = await findOrCreateUser(mapUser(callback.from))
+            const userId: string = await findOrCreateUser(mapUserRegister(callback.from))
             if (await getUserNotificationsStatus(userId)) {
                 turn = { text: '🔔 Выключить уведомления', callback_data: 'turnNotifications' }
             } else {
