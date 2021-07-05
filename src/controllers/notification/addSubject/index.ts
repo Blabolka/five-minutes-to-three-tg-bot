@@ -1,8 +1,8 @@
 import bot from '@bot'
-import { CallbackQuery, InlineKeyboardButton, Message, User } from 'node-telegram-bot-api'
-import { parseAddSubjectText, validateAddSubjectText } from '@utils/notifications'
 import { ISubjectAdd } from '@interfaces/Subject'
 import { createSubject, subjectExistsOnTime } from '@utils/subjects'
+import { parseAddSubjectText, validateAddSubjectText } from '@utils/notifications'
+import { CallbackQuery, InlineKeyboardButton, Message, User } from 'node-telegram-bot-api'
 
 // after click 'add subject' on notifications page
 bot.on('callback_query', async (callback: CallbackQuery) => {
@@ -14,7 +14,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 'Хорошо. Отправьте сообщение в таком формате:\n\n' +
                 'Название предмета\n' +
                 'День недели (1-пн, 7-вс)\n' +
-                'Время (например: 13:30)\n' +
+                'Время уведомления (например: 13:30)\n' +
                 'Ссылка на пару (не обязательно)\n' +
                 '\nОтменить действие: /cancel'
             await bot.sendMessage(callback.message.chat.id, text)

@@ -1,6 +1,6 @@
 import bot from '@bot'
+import { findOrCreateUser, mapUserRegister } from '@utils/users'
 import { CallbackQuery, InlineKeyboardButton, Message } from 'node-telegram-bot-api'
-import { findOrCreateUser, mapUser } from '@utils/users'
 
 const notificationMenu: InlineKeyboardButton = { text: '🔔 Уведомления о парах', callback_data: 'notifications' }
 const keyboard: InlineKeyboardButton[][] = [[notificationMenu]]
@@ -10,7 +10,7 @@ bot.on('message', async (msg: Message) => {
     try {
         if (msg.text === '/start' && msg.from) {
             // save user to database
-            await findOrCreateUser(mapUser(msg.from))
+            await findOrCreateUser(mapUserRegister(msg.from))
 
             await bot.sendChatAction(msg.from.id, 'typing')
             await bot.sendMessage(msg.from.id, 'Добро пожаловать!\nВыберите нужную вам категорию.', {

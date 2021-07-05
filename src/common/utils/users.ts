@@ -1,20 +1,8 @@
 import db from '@db'
-import { IUserRegister } from '@interfaces/User'
-import { User } from 'node-telegram-bot-api'
-import { Role } from '@enums/User'
 import { QueryResult } from 'pg'
-
-export function mapUser(user: User): IUserRegister {
-    return {
-        telegram_id: user.id,
-        is_bot: user.is_bot,
-        first_name: user.first_name,
-        last_name: user.last_name || null,
-        username: user.username || null,
-        language_code: user.language_code || 'ru',
-        role: Role.student,
-    }
-}
+import { Role } from '@enums/User'
+import { User } from 'node-telegram-bot-api'
+import { IUserInfo, IUserRegister } from '@interfaces/User'
 
 export async function findOrCreateUser(user: IUserRegister): Promise<string> {
     const result: QueryResult = await db.query(
@@ -30,4 +18,52 @@ export async function findOrCreateUser(user: IUserRegister): Promise<string> {
     )
 
     return result.rows[0].id
+}
+
+export function mapUserRegister(user: User): IUserRegister {
+    return {
+        telegram_id: user.id,
+        is_bot: user.is_bot,
+        first_name: user.first_name,
+        last_name: user.last_name || null,
+        username: user.username || null,
+        language_code: user.language_code || 'ru',
+        role: Role.student,
+    }
+}
+
+export async function findAllUserWithNotificationsStatus(status: boolean): Promise<IUserInfo[]> {
+    const result: QueryResult = await db.query(
+        `SELECT id,
+                telegram_id,
+                is_bot,
+                first_name,
+                last_name,
+                username,
+                language_code,
+                role,
+                notifications
+         FROM users
+         WHERE notifications = $1`,
+        [status],
+    )
+    const users: IUserInfo[] = []
+    for (const row of result.rows) {
+        users.push(mapUserInfo(row))
+    }
+    return users
+}
+
+function mapUserInfo(row: IUserInfo): IUserInfo {
+    return {
+        id: row.id,
+        telegram_id: row.telegram_id,
+        is_bot: row.is_bot,
+        first_name: row.first_name,
+        last_name: row.last_name || null,
+        username: row.username || null,
+        language_code: row.language_code || 'ru',
+        role: row.role,
+        notifications: row.notifications,
+    }
 }

@@ -1,9 +1,9 @@
 import bot from '@bot'
+import { WeekDayShortRus } from '@enums/Subject'
+import { ISubjectInfo } from '@interfaces/Subject'
+import { findOrCreateUser, mapUserRegister } from '@utils/users'
 import { CallbackQuery, InlineKeyboardButton } from 'node-telegram-bot-api'
 import { deleteSubjectById, findAllSubjectsByUserId } from '@utils/subjects'
-import { findOrCreateUser, mapUser } from '@utils/users'
-import { ISubjectInfo } from '@interfaces/Subject'
-import { WeekDayShortRus } from '@enums/Subject'
 
 // after click 'delete subject' or current subject on subjects stage
 bot.on('callback_query', async (callback: CallbackQuery) => {
@@ -15,7 +15,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 await deleteSubjectById(data[1])
             }
 
-            const userId: string = await findOrCreateUser(mapUser(callback.from))
+            const userId: string = await findOrCreateUser(mapUserRegister(callback.from))
             const subjects: ISubjectInfo[] = await findAllSubjectsByUserId(userId)
 
             const keyboard: InlineKeyboardButton[][] = []

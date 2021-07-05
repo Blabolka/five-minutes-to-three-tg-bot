@@ -1,6 +1,6 @@
 import bot from '@bot'
+import { findOrCreateUser, mapUserRegister } from '@utils/users'
 import { CallbackQuery, InlineKeyboardButton } from 'node-telegram-bot-api'
-import { findOrCreateUser, mapUser } from '@utils/users'
 import { getUserNotificationsStatus, toggleUserNotifications } from '@utils/notifications'
 
 // after click turn on/off notifications
@@ -8,7 +8,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
         if (callback.data === 'turnNotifications' && callback.message?.reply_markup?.inline_keyboard) {
             // find user from db or add if not exists
-            const userId: string = await findOrCreateUser(mapUser(callback.from))
+            const userId: string = await findOrCreateUser(mapUserRegister(callback.from))
             // change boolean value (true-enable / false-disable)
             await toggleUserNotifications(userId)
 
