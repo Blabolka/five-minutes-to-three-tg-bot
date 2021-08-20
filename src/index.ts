@@ -11,4 +11,5 @@ import 'module-alias/register'
 import '@db'
 
 // import all controllers
-import '@controllers/start/index'
+import '@controllers/stages/start/index'
+import '@controllers/common/converters/videoNoteConverter/index'

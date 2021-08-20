@@ -15,6 +15,7 @@
     "baseUrl": "./src",
     "paths": {
       "@bot": ["bot"],
+      "@api/*": ["api/*"],
       "@models/*": ["models/*"],
       "@db": ["common/tools/db"],
       "@utils/*": ["common/utils/*"],

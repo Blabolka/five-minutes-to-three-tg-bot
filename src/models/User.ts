@@ -32,7 +32,10 @@ const schema: Schema = new Schema(
             required: false,
         },
     },
-    { collection: 'users' },
+    {
+        collection: 'users',
+        versionKey: false,
+    },
 )
 
 const UserModel: Model<IUserModel> = model<IUserModel>('User', schema)
