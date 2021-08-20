@@ -15,10 +15,9 @@
     "baseUrl": "./src",
     "paths": {
       "@bot": ["bot"],
+      "@models/*": ["models/*"],
       "@db": ["common/tools/db"],
       "@tools/*": ["common/tools/*"],
-      "@utils/*": ["common/utils/*"],
-      "@enums/*": ["common/enums/*"],
       "@controllers/*": ["controllers/*"],
       "@interfaces/*": ["common/interfaces/*"]
 },
