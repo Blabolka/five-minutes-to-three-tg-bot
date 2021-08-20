@@ -7,7 +7,8 @@
     "clean": "rimraf dist/*",
     "start:dev": "tsc-watch --onSuccess \"node dist/index.js\"",
     "start:prod": "node dist/index.js",
-    "lint": "eslint -c .eslintrc.json --fix src/"
+    "lint:check": "eslint -c .eslintrc.json src/",
+    "lint:fix": "eslint -c .eslintrc.json --fix src/"
   },
   "keywords": [],
   "author": "",
