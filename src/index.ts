@@ -7,6 +7,9 @@ dotenv.config({ path: pathToEnv })
 // for pretty path in import expression
 import 'module-alias/register'
 
+// connection to database
+import '@db'
+
 // import all controllers
-import '@controllers/start/index'
-import '@controllers/notification/index'
+import '@controllers/stages/start/index'
+import '@controllers/common/converters/videoNoteConverter/index'
