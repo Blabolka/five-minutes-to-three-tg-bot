@@ -11,7 +11,7 @@
   "rules": {
     "prettier/prettier": ["error"],
     "@typescript-eslint/typedef": [
-      "error",
+      "off",
       {
         "parameter":  true,
         "arrowParameter": true,
@@ -24,6 +24,7 @@
     ],
     "max-len": ["error", { "code": 120 }],
     "@typescript-eslint/no-empty-function": ["off"],
-    "@typescript-eslint/no-inferrable-types": ["off"]
+    "@typescript-eslint/no-inferrable-types": ["off"],
+    "@typescript-eslint/explicit-module-boundary-types": ["off"]
   }
 }

@@ -3,7 +3,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import express, { Application, Request, Response, Router } from 'express'
 
 // launch bot
-const bot: TelegramBot = new TelegramBot(process.env.TOKEN || 'error')
+const bot: TelegramBot = new TelegramBot(process.env.BOT_TOKEN || 'error')
 bot.setWebHook(`${process.env.URL}/bot`)
     .then()
     .catch((err: Error) => console.log(err))

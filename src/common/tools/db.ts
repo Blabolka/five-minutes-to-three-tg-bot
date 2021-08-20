@@ -1,17 +1,11 @@
-import { Pool } from 'pg'
+import mongoose from 'mongoose'
 
-// set parameters for connection to db
-const db: Pool = new Pool({
-    user: process.env.PGUSER || 'postgres',
-    database: process.env.PGDATABASE || 'postgres',
-    host: process.env.PGHOST || 'localhost',
-    port: parseInt(process.env.PGPORT as string, 10) || 5432,
-    password: process.env.PGPASSWORD || '1',
-    ssl: process.env.DATABASE_SSL === `true`,
-})
+const connectUri: string = process.env.MONGO_CONNECT_URI || ''
 
-db.connect()
-    .then((): void => console.log('connected'))
-    .catch((err: Error): void => console.error('connection error', err.stack))
-
-export default db
+mongoose
+    .connect(connectUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log('Connected to db'))
+    .catch(() => console.error('Error connecting to db'))
