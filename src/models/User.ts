@@ -1,12 +1,16 @@
 import { Schema, model, Model } from 'mongoose'
 import { nanoid } from 'nanoid'
-import { User } from '@interfaces/User'
+import { IUserModel } from '@interfaces/User'
 
-const schema: Schema<User> = new Schema<User>(
+const schema: Schema = new Schema(
     {
         _id: {
             type: String,
-            default: () => nanoid(),
+            default: nanoid(),
+        },
+        telegram_id: {
+            type: Number,
+            required: [true, '"telegram_id" is required field'],
         },
         is_bot: {
             type: Boolean,
@@ -31,5 +35,5 @@ const schema: Schema<User> = new Schema<User>(
     { collection: 'users' },
 )
 
-const UserModel: Model<User> = model<User>('User', schema)
+const UserModel: Model<IUserModel> = model<IUserModel>('User', schema)
 export default UserModel

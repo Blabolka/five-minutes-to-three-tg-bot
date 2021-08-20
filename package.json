@@ -43,6 +43,7 @@
     "@bot": "dist/bot",
     "@db": "dist/common/tools/db",
     "@models": "dist/models",
+    "@utils": "dist/common/utils",
     "@tools": "dist/common/tools",
     "@controllers": "dist/controllers",
     "@interfaces": "dist/common/interfaces"
