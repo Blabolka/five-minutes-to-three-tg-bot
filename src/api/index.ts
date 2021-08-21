@@ -1,6 +1,7 @@
 import axios from 'axios'
 import fs from 'fs'
 import { nanoid } from 'nanoid'
+import { FileType } from '@interfaces/FileType'
 
 const token: string = process.env.BOT_TOKEN || ''
 
@@ -18,7 +19,7 @@ export async function getFileInfo(fileId: string) {
  * according to
  * https://stackoverflow.com/questions/66844275/how-can-i-download-mp4-file-from-https-link-with-redirect-in-node-js
  */
-export async function downloadFile(fileTelegramPath: string): Promise<string> {
+export async function downloadFile(fileTelegramPath: string, fileType: FileType): Promise<string> {
     return await axios({
         url: `https://api.telegram.org/file/bot${token}/${fileTelegramPath}`,
         method: 'GET',
@@ -30,7 +31,7 @@ export async function downloadFile(fileTelegramPath: string): Promise<string> {
                 fs.mkdirSync(fileDirectory)
             }
 
-            const filePath = fileDirectory + '/' + nanoid() + '.mp4'
+            const filePath = fileDirectory + '/' + nanoid() + '.' + fileType
 
             const file = fs.createWriteStream(filePath)
             response.data.pipe(file)

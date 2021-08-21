@@ -9,8 +9,13 @@ bot.on('video_note', async (msg: Message) => {
             await bot.sendChatAction(msg.from.id, 'upload_video')
 
             const data = await getFileInfo(msg.video_note.file_id)
-            const filePath = await downloadFile(data.file_path)
-            await bot.sendVideo(msg.from.id, fs.createReadStream(filePath))
+            const filePath = await downloadFile(data.file_path, 'mp4')
+
+            await bot.sendVideo(msg.from.id, fs.createReadStream(filePath), {
+                duration: msg.video_note.duration,
+            })
+
+            fs.unlinkSync(filePath)
         }
     } catch (err) {
         console.log(err)
