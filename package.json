@@ -45,7 +45,6 @@
   },
   "_moduleAliases": {
     "@bot": "dist/bot",
-    "@api": "dist/api",
     "@db": "dist/common/tools/db",
     "@models": "dist/models",
     "@utils": "dist/common/utils",

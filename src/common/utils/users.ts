@@ -1,6 +1,7 @@
 import { User } from 'node-telegram-bot-api'
 import { IUserModel, IUserRegister } from '@interfaces/User'
 import UserModel from '@models/User'
+import fs from 'fs'
 
 export function mapUser(user: User): IUserRegister {
     return {
@@ -25,4 +26,20 @@ export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel 
             useFindAndModify: false,
         },
     ).exec()
+}
+
+export function getUserFilesDirectory(user: User): string {
+    function createFolderIfNotExists(path: string) {
+        if (!fs.existsSync(path)){
+            fs.mkdirSync(path);
+        }
+    }
+
+    let dirPath = './files'
+
+    createFolderIfNotExists(dirPath)
+    dirPath += '/' + user.id
+    createFolderIfNotExists(dirPath)
+
+    return dirPath
 }

@@ -15,14 +15,13 @@
     "baseUrl": "./src",
     "paths": {
       "@bot": ["bot"],
-      "@api/*": ["api/*"],
       "@models/*": ["models/*"],
       "@db": ["common/tools/db"],
       "@utils/*": ["common/utils/*"],
       "@tools/*": ["common/tools/*"],
       "@controllers/*": ["controllers/*"],
       "@interfaces/*": ["common/interfaces/*"]
-},
+    },
     "esModuleInterop": true,                        /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "resolveJsonModule": true
   },
