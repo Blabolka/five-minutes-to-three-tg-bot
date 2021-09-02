@@ -9,8 +9,7 @@ bot.on('message', async (msg: Message) => {
         if (msg.text === '/start' && msg.from) {
             await findOrCreateUser(mapUser(msg.from))
 
-            await bot.sendMessage(msg.from.id, 'Добро пожаловать!')
-            await bot.sendMessage(msg.from.id, 'Выбери нужную тебе категорию.', {
+            await bot.sendMessage(msg.from.id, 'Выберите нужную вам категорию.', {
                 reply_markup: {
                     inline_keyboard: getStartMenu(),
                 },

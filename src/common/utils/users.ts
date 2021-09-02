@@ -30,8 +30,8 @@ export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel 
 
 export function getUserFilesDirectory(user: User): string {
     function createFolderIfNotExists(path: string) {
-        if (!fs.existsSync(path)){
-            fs.mkdirSync(path);
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path)
         }
     }
 
