@@ -2,7 +2,9 @@ import { User } from 'node-telegram-bot-api'
 import { IUserModel, IUserRegister } from '@interfaces/User'
 import UserModel from '@models/User'
 import fs from 'fs'
+import { UserFiles } from '@interfaces/UserFiles'
 
+// map telegram user for matching database user
 export function mapUser(user: User): IUserRegister {
     return {
         telegram_id: user.id,
@@ -13,6 +15,7 @@ export function mapUser(user: User): IUserRegister {
     }
 }
 
+// find user in database otherwise create new user
 export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel | null> {
     return await UserModel.findOneAndUpdate(
         { telegram_id: user.telegram_id },
@@ -28,6 +31,7 @@ export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel 
     ).exec()
 }
 
+// create and return personal user directory to avoid conflict between different user files
 export function getUserFilesDirectory(user: User): string {
     function createFolderIfNotExists(path: string) {
         if (!fs.existsSync(path)) {
@@ -42,4 +46,20 @@ export function getUserFilesDirectory(user: User): string {
     createFolderIfNotExists(dirPath)
 
     return dirPath
+}
+
+export function getUserSentFiles(userFiles: UserFiles[], searchUserId: number): string[] | null {
+    const userInfo: UserFiles | undefined = userFiles.find(({ userId }: UserFiles) => {
+        return userId === searchUserId
+    })
+
+    return userInfo ? userInfo.fileIds : null
+}
+
+export function getUserSentOutputFileName(userFiles: UserFiles[], searchUserId: number): string | null {
+    const userInfo: UserFiles | undefined = userFiles.find(({ userId }: UserFiles) => {
+        return userId === searchUserId
+    })
+
+    return userInfo ? userInfo.outputFileName : null
 }
