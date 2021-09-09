@@ -14,6 +14,7 @@ import fs from 'fs'
 import { getPhotoSize } from '@utils/photos'
 import path from 'path'
 import { isEntitiesIncludeSomeStage } from '@utils/stages'
+import sanitize from 'sanitize-filename'
 
 let userFiles: ConvertingInfo[] = []
 
@@ -113,9 +114,23 @@ bot.on('message', async (msg: Message) => {
 
             if (oldFileName) {
                 // find user and change file name for him
-                setFileNameForUser(msg.from.id, msg.text)
+                const sanitizedFileName: string = sanitize(msg.text)
 
-                await bot.sendMessage(msg.from.id, 'Имя исходного файла было успешно заменено ✅')
+                if (sanitizedFileName) {
+                    setFileNameForUser(msg.from.id, sanitizedFileName)
+
+                    await bot.sendMessage(
+                        msg.from.id,
+                        'Имя исходного файла было успешно заменено ✅\n' +
+                            'Новое имя файла: ' +
+                            '<b>' +
+                            sanitizedFileName +
+                            '</b>',
+                        {
+                            parse_mode: 'HTML',
+                        },
+                    )
+                }
             }
         }
     } catch (err) {
@@ -182,6 +197,10 @@ bot.on('message', async (msg: Message) => {
             downloadedFilesPath.forEach((path: string) => {
                 fs.unlinkSync(path)
             })
+        })
+
+        writeStream.on('error', (err) => {
+            console.log(err)
         })
     } catch (err) {
         console.log(err)
