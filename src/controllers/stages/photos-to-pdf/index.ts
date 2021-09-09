@@ -8,6 +8,7 @@ import {
     getUserSentOutputFileName,
     downloadPhotosToPdf,
     getIsConvertingInProcess,
+    matchPhotoSizeToPdf,
 } from '@utils/photosToPdf'
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
@@ -163,7 +164,7 @@ bot.on('message', async (msg: Message) => {
         }
 
         setConvertingStateForUser(userId, true)
-        await bot.sendMessage(userId, 'Процесс конвертации начался...', {
+        const convertingMessage: Message = await bot.sendMessage(userId, 'В процессе конвертации...', {
             reply_markup: { remove_keyboard: true },
         })
 
@@ -174,23 +175,31 @@ bot.on('message', async (msg: Message) => {
 
         // set up first page and first photo in document
         const defaultMargins = { top: 0, left: 0, bottom: 0, right: 0 }
-        const firstPhotoSize = await getPhotoSize(downloadedFilesPath[0])
-        const doc = new PDFDocument({ margins: defaultMargins, size: [firstPhotoSize.width, firstPhotoSize.height] })
+        const doc = new PDFDocument({ autoFirstPage: false })
         const writeStream = fs.createWriteStream(outputFilePath)
         doc.pipe(writeStream)
-        doc.image(downloadedFilesPath[0])
 
         // set up other pages in document
-        for (let index = 1; index < downloadedFilesPath.length; index++) {
+        for (let index = 0; index < downloadedFilesPath.length; index++) {
             const photoSize = await getPhotoSize(downloadedFilesPath[index])
-            doc.addPage({ margins: defaultMargins, size: [photoSize.width, photoSize.height] })
-            doc.image(downloadedFilesPath[index])
+            const matchedPhotoSize = matchPhotoSizeToPdf(photoSize)
+
+            doc.addPage({ margins: defaultMargins, size: [matchedPhotoSize.width, matchedPhotoSize.height] })
+            doc.image(downloadedFilesPath[index], {
+                width: matchedPhotoSize.width,
+                height: matchedPhotoSize.height,
+            })
         }
 
         doc.end()
         writeStream.on('finish', async () => {
-            await bot.sendChatAction(userId, 'upload_document')
-            await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
+            try {
+                await bot.sendChatAction(userId, 'upload_document')
+                await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
+                await bot.deleteMessage(userId, String(convertingMessage.message_id))
+            } catch (err) {
+                console.log(err)
+            }
 
             removeUserFromList(userId)
             fs.unlinkSync(outputFilePath)
@@ -199,7 +208,7 @@ bot.on('message', async (msg: Message) => {
             })
         })
 
-        writeStream.on('error', (err) => {
+        writeStream.on('error', async (err) => {
             console.log(err)
         })
     } catch (err) {

@@ -38,23 +38,19 @@ export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): P
         const photoFilePath: string = await bot.downloadFile(fileId, dirPath)
         const fileExtension = path.extname(photoFilePath)
         const newPhotoFilePath =
-            photoFilePath.substring(0, photoFilePath.lastIndexOf(fileExtension)) + '-resized' + fileExtension
+            photoFilePath.substring(0, photoFilePath.lastIndexOf(fileExtension)) + '-rotated' + fileExtension
 
-        const photoDimensions: Dimensions = matchPhotoSizeToPdf(await getPhotoSize(photoFilePath))
+        const photoDimensions: Dimensions = await getPhotoSize(photoFilePath)
+
+        const sharpPhoto = sharp(photoFilePath)
 
         if (fileExtension === '.jpg') {
-            await sharp(photoFilePath)
-                .jpeg({ quality: 100 })
-                .rotate(getRotationAngle(photoDimensions.orientation))
-                .resize(photoDimensions.width, photoDimensions.height)
-                .toFile(newPhotoFilePath)
+            sharpPhoto.jpeg({ quality: 100 })
         } else {
-            await sharp(photoFilePath)
-                .png()
-                .rotate(getRotationAngle(photoDimensions.orientation))
-                .resize(photoDimensions.width, photoDimensions.height)
-                .toFile(newPhotoFilePath)
+            sharpPhoto.png()
         }
+
+        await sharpPhoto.rotate(getRotationAngle(photoDimensions.orientation)).toFile(newPhotoFilePath)
 
         // delete old photo file
         fs.unlinkSync(photoFilePath)
@@ -80,7 +76,7 @@ function getRotationAngle(orientationExif: number): number {
     }
 }
 
-function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
+export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
     function shouldSwapWidthAndHeightValues(orientationExif: number): boolean {
         switch (orientationExif) {
             case 1:
