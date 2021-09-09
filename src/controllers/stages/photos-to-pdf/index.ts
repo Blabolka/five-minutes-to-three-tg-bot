@@ -53,7 +53,7 @@ bot.on('document', async (msg: Message) => {
             await findOrCreateUser(mapUser(msg.from))
 
             if (!msg.document || (msg.document.mime_type !== 'image/jpeg' && msg.document.mime_type !== 'image/png')) {
-                // TODO send to user warning message...
+                await bot.sendMessage(msg.from.id, '‼ Проверьте корректность загружаемого файла ‼')
                 return
             }
 
@@ -71,7 +71,7 @@ bot.on('document', async (msg: Message) => {
 // if user sent new output file name
 bot.on('message', async (msg: Message) => {
     try {
-        if (msg.from && msg.text && msg.text.length < 250) {
+        if (msg.from && msg.text && msg.text.length < 250 && msg.text !== 'Конвертировать') {
             await findOrCreateUser(mapUser(msg.from))
 
             const oldFileName = getUserSentOutputFileName(userFiles, msg.from.id)
@@ -84,6 +84,8 @@ bot.on('message', async (msg: Message) => {
                         break
                     }
                 }
+
+                await bot.sendMessage(msg.from.id, 'Имя исходного файла было успешно заменено ✅')
             }
         }
     } catch (err) {
@@ -94,17 +96,27 @@ bot.on('message', async (msg: Message) => {
 bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
         if (callback.data !== 'convert-photos-to-pdf') return
+        const userId = callback.from.id
         await findOrCreateUser(mapUser(callback.from))
 
-        const files: string[] | null = getUserSentFiles(userFiles, callback.from.id)
-        if (!files || (files && !files.length)) {
-            // TODO send to user warning message...
-            await bot.answerCallbackQuery(callback.id)
+        const files: string[] | null = getUserSentFiles(userFiles, userId)
+
+        // check if user want to convert files
+        if (!files) {
             return
         }
 
+        // check if user sent at least one file
+        if (files && !files.length) {
+            await bot.sendMessage(userId, '‼ Нужно отправить как минимум 1 файл ‼')
+            return
+        }
+
+        // TODO fix double converting if user fast click on 'Конвертировать' button
+        await bot.sendMessage(userId, 'Процесс конвертации начался...')
+
         const dirPath: string = getUserFilesDirectory(callback.from)
-        const outputFileName: string = getUserSentOutputFileName(userFiles, callback.from.id) + '.pdf'
+        const outputFileName: string = getUserSentOutputFileName(userFiles, userId) + '.pdf'
         const outputFilePath: string = path.join(dirPath, outputFileName)
         const downloadedFilesPath: string[] = await downloadPhotosToPdf(files, dirPath)
 

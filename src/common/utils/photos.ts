@@ -13,6 +13,7 @@ export function getPhotoSize(filePath: string): Promise<Dimensions> {
                 resolve({
                     width: dimensions.width,
                     height: dimensions.height,
+                    orientation: dimensions.orientation || 1,
                 })
             } else {
                 reject(null)
