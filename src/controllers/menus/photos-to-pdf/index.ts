@@ -1,7 +1,7 @@
-import { InlineKeyboardButton } from 'node-telegram-bot-api'
+import { KeyboardButton } from 'node-telegram-bot-api'
 
-export function getConvertMenu(): InlineKeyboardButton[][] {
-    const doConvert: InlineKeyboardButton = { text: 'Конвертировать', callback_data: 'convert-photos-to-pdf' }
+export function getConvertMenu(): KeyboardButton[][] {
+    const doConvert: KeyboardButton = { text: 'Конвертировать' }
 
     return [[doConvert]]
 }

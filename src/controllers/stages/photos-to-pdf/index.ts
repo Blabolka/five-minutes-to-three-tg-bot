@@ -27,16 +27,16 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             userFiles.push({ userId: callback.from.id, fileIds: [], outputFileName: callback.from.first_name })
         }
 
-        await bot.editMessageText(
+        await bot.sendMessage(
+            callback.from.id,
             '‼ Принимаются только фото без сжатия ‼\n' +
                 '‼ Имя исходного файла можно отправить сообщением ‼\n' +
                 'После загрузки фотографий нажмите "Конвертировать"',
             {
                 reply_markup: {
-                    inline_keyboard: getConvertMenu(),
+                    keyboard: getConvertMenu(),
+                    resize_keyboard: true,
                 },
-                chat_id: callback.message?.chat.id,
-                message_id: callback.message?.message_id,
             },
         )
 
@@ -93,11 +93,11 @@ bot.on('message', async (msg: Message) => {
     }
 })
 
-bot.on('callback_query', async (callback: CallbackQuery) => {
+bot.on('message', async (msg: Message) => {
     try {
-        if (callback.data !== 'convert-photos-to-pdf') return
-        const userId = callback.from.id
-        await findOrCreateUser(mapUser(callback.from))
+        if (msg.text !== 'Конвертировать' || !msg.from) return
+        const userId = msg.from.id
+        await findOrCreateUser(mapUser(msg.from))
 
         const files: string[] | null = getUserSentFiles(userFiles, userId)
 
@@ -113,9 +113,11 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
         }
 
         // TODO fix double converting if user fast click on 'Конвертировать' button
-        await bot.sendMessage(userId, 'Процесс конвертации начался...')
+        await bot.sendMessage(userId, 'Процесс конвертации начался...', {
+            reply_markup: { remove_keyboard: true },
+        })
 
-        const dirPath: string = getUserFilesDirectory(callback.from)
+        const dirPath: string = getUserFilesDirectory(msg.from)
         const outputFileName: string = getUserSentOutputFileName(userFiles, userId) + '.pdf'
         const outputFilePath: string = path.join(dirPath, outputFileName)
         const downloadedFilesPath: string[] = await downloadPhotosToPdf(files, dirPath)
@@ -137,14 +139,11 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 
         doc.end()
         writeStream.on('finish', async () => {
-            if (callback.message) {
-                await bot.deleteMessage(callback.message.chat.id, String(callback.message.message_id))
-            }
-            await bot.sendChatAction(callback.from.id, 'upload_document')
-            await bot.sendDocument(callback.from.id, fs.createReadStream(outputFilePath))
+            await bot.sendChatAction(userId, 'upload_document')
+            await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
 
             // delete files after complete converting and sending it to users
-            userFiles = userFiles.filter((item) => item.userId !== callback.from.id)
+            userFiles = userFiles.filter((item) => item.userId !== userId)
             fs.unlinkSync(outputFilePath)
             downloadedFilesPath.forEach((path: string) => {
                 fs.unlinkSync(path)
