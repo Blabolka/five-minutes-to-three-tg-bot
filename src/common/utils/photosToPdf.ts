@@ -1,9 +1,34 @@
+import { ConvertingInfo } from '@interfaces/PhotosToPdf'
 import bot from '@bot'
-import { Dimensions } from '@interfaces/Photos'
-import sharp from 'sharp'
-import { getPhotoSize } from '@utils/photos'
 import path from 'path'
+import { Dimensions } from '@interfaces/Photos'
+import { getPhotoSize } from '@utils/photos'
+import sharp from 'sharp'
 import fs from 'fs'
+
+export function getIsConvertingInProcess(userFiles: ConvertingInfo[], searchUserId: number): boolean {
+    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.isConvertingInProcess : false
+}
+
+export function getUserSentFiles(userFiles: ConvertingInfo[], searchUserId: number): string[] | null {
+    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.fileIds : null
+}
+
+export function getUserSentOutputFileName(userFiles: ConvertingInfo[], searchUserId: number): string | null {
+    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.outputFileName : null
+}
+
+function findUserConvertingInfo(userFiles: ConvertingInfo[], searchUserId: number): ConvertingInfo | undefined {
+    return userFiles.find(({ userId }: ConvertingInfo) => {
+        return userId === searchUserId
+    })
+}
 
 export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): Promise<string[]> {
     const result: string[] = []

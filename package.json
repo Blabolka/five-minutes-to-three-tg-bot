@@ -48,6 +48,7 @@
   },
   "_moduleAliases": {
     "@bot": "dist/bot",
+    "@common": "dist/common",
     "@db": "dist/common/tools/db",
     "@models": "dist/models",
     "@utils": "dist/common/utils",

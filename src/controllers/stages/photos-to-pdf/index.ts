@@ -1,22 +1,45 @@
 import bot from '@bot'
 import { CallbackQuery, Message } from 'node-telegram-bot-api'
 import { getConvertMenu } from '@controllers/menus/photos-to-pdf'
-import { UserFiles } from '@interfaces/UserFiles'
+import { ConvertingInfo } from '@interfaces/PhotosToPdf'
+import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 import {
-    findOrCreateUser,
-    getUserFilesDirectory,
     getUserSentFiles,
     getUserSentOutputFileName,
-    mapUser,
-} from '@utils/users'
+    downloadPhotosToPdf,
+    getIsConvertingInProcess,
+} from '@utils/photosToPdf'
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
-import { downloadPhotosToPdf } from '@utils/files'
 import { getPhotoSize } from '@utils/photos'
 import path from 'path'
+import { isEntitiesIncludeSomeStage } from '@utils/stages'
 
-let userFiles: UserFiles[] = []
+let userFiles: ConvertingInfo[] = []
 
+function setFileNameForUser(userId: number, newFileName: string) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].outputFileName = newFileName
+            break
+        }
+    }
+}
+
+function setConvertingStateForUser(userId: number, newConvertingState: boolean) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].isConvertingInProcess = newConvertingState
+            break
+        }
+    }
+}
+
+function removeUserFromList(userId: number): void {
+    userFiles = userFiles.filter((item) => item.userId !== userId)
+}
+
+// show user converting from photos to pdf menu
 bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
         if (callback.data !== 'photos-to-pdf') return
@@ -24,7 +47,12 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 
         const files: string[] | null = getUserSentFiles(userFiles, callback.from.id)
         if (!files) {
-            userFiles.push({ userId: callback.from.id, fileIds: [], outputFileName: callback.from.first_name })
+            userFiles.push({
+                userId: callback.from.id,
+                fileIds: [],
+                outputFileName: callback.from.first_name,
+                isConvertingInProcess: false,
+            })
         }
 
         await bot.sendMessage(
@@ -68,22 +96,24 @@ bot.on('document', async (msg: Message) => {
     }
 })
 
+// if user change stage to another
+bot.on('message', async (msg: Message) => {
+    if (msg.from && msg.text && msg.entities && isEntitiesIncludeSomeStage(msg.entities, msg.text)) {
+        removeUserFromList(msg.from.id)
+    }
+})
+
 // if user sent new output file name
 bot.on('message', async (msg: Message) => {
     try {
-        if (msg.from && msg.text && msg.text.length < 250 && msg.text !== 'Конвертировать') {
+        if (msg.from && msg.text && msg.text.length < 250 && !msg.entities && msg.text !== 'Конвертировать') {
             await findOrCreateUser(mapUser(msg.from))
 
             const oldFileName = getUserSentOutputFileName(userFiles, msg.from.id)
 
             if (oldFileName) {
                 // find user and change file name for him
-                for (let index = 0; index < userFiles.length; index++) {
-                    if (userFiles[index].userId === msg.from.id) {
-                        userFiles[index].outputFileName = msg.text
-                        break
-                    }
-                }
+                setFileNameForUser(msg.from.id, msg.text)
 
                 await bot.sendMessage(msg.from.id, 'Имя исходного файла было успешно заменено ✅')
             }
@@ -93,6 +123,7 @@ bot.on('message', async (msg: Message) => {
     }
 })
 
+// if user click on "CONVERT" button
 bot.on('message', async (msg: Message) => {
     try {
         if (msg.text !== 'Конвертировать' || !msg.from) return
@@ -100,7 +131,6 @@ bot.on('message', async (msg: Message) => {
         await findOrCreateUser(mapUser(msg.from))
 
         const files: string[] | null = getUserSentFiles(userFiles, userId)
-
         // check if user want to convert files
         if (!files) {
             return
@@ -112,7 +142,12 @@ bot.on('message', async (msg: Message) => {
             return
         }
 
-        // TODO fix double converting if user fast click on 'Конвертировать' button
+        // check if the converting is already launch
+        if (getIsConvertingInProcess(userFiles, userId)) {
+            return
+        }
+
+        setConvertingStateForUser(userId, true)
         await bot.sendMessage(userId, 'Процесс конвертации начался...', {
             reply_markup: { remove_keyboard: true },
         })
@@ -142,8 +177,7 @@ bot.on('message', async (msg: Message) => {
             await bot.sendChatAction(userId, 'upload_document')
             await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
 
-            // delete files after complete converting and sending it to users
-            userFiles = userFiles.filter((item) => item.userId !== userId)
+            removeUserFromList(userId)
             fs.unlinkSync(outputFilePath)
             downloadedFilesPath.forEach((path: string) => {
                 fs.unlinkSync(path)
