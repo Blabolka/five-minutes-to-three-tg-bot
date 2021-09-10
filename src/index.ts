@@ -10,6 +10,10 @@ import 'module-alias/register'
 // connection to database
 import '@db'
 
-// import all controllers
+// import all stages
 import '@controllers/stages/start/index'
-import '@controllers/common/converters/videoNoteConverter/index'
+import '@controllers/stages/photos-to-pdf/index'
+
+// import all common controllers
+import '@controllers/common/converters/videoNote/index'
+import '@controllers/common/converters/voiceMessage/index'

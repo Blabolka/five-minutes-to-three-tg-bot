@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser'
 import TelegramBot from 'node-telegram-bot-api'
 import express, { Application, Request, Response, Router } from 'express'
+import stages from '@common/stages.json'
 
 // launch bot
 const bot: TelegramBot = new TelegramBot(process.env.BOT_TOKEN || 'error')
@@ -8,8 +9,10 @@ bot.setWebHook(`${process.env.URL}/bot`)
     .then()
     .catch((err: Error) => console.log(err))
 
-// set commands available for users
-bot.setMyCommands([{ command: '/start', description: 'Начать работу с ботом' }]).then()
+// set all bot commands
+stages.forEach((stage) => {
+    bot.setMyCommands([{ command: stage.command, description: stage.description }]).then()
+})
 
 const app: Application = express()
 
