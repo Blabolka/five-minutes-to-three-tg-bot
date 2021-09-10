@@ -5,8 +5,8 @@
   "main": "dist/src/index.js",
   "scripts": {
     "clean": "rimraf dist/*",
+    "start": "tsc && node dist/index.js",
     "start:dev": "tsc-watch --onSuccess \"node dist/index.js\"",
-    "start:prod": "tsc && node dist/index.js",
     "lint:check": "eslint -c .eslintrc.json src/",
     "lint:fix": "eslint -c .eslintrc.json --fix src/"
   },
