@@ -5,6 +5,7 @@ import { Dimensions } from '@interfaces/Photos'
 import { getPhotoSize } from '@utils/photos'
 import sharp from 'sharp'
 import fs from 'fs'
+import { nanoid } from 'nanoid'
 
 export function getIsConvertingInProcess(userFiles: ConvertingInfo[], searchUserId: number): boolean {
     const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
@@ -37,19 +38,20 @@ export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): P
         // creating new file with sizes that match pdf file
         const photoFilePath: string = await bot.downloadFile(fileId, dirPath)
         const fileExtension = path.extname(photoFilePath)
-        const newPhotoFilePath =
-            photoFilePath.substring(0, photoFilePath.lastIndexOf(fileExtension)) + '-rotated' + fileExtension
+        const newPhotoFilePath = path.join(path.dirname(photoFilePath), nanoid()) + fileExtension
 
         const photoDimensions: Dimensions = await getPhotoSize(photoFilePath)
 
         const sharpPhoto = sharp(photoFilePath)
 
+        // compress image size
         if (fileExtension === '.jpg') {
-            sharpPhoto.jpeg({ quality: 100 })
+            sharpPhoto.jpeg({ quality: 90 })
         } else {
-            sharpPhoto.png()
+            sharpPhoto.png({ quality: 90 })
         }
 
+        // addition rotate if need
         await sharpPhoto.rotate(getRotationAngle(photoDimensions.orientation)).toFile(newPhotoFilePath)
 
         // delete old photo file
@@ -77,21 +79,6 @@ function getRotationAngle(orientationExif: number): number {
 }
 
 export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
-    function shouldSwapWidthAndHeightValues(orientationExif: number): boolean {
-        switch (orientationExif) {
-            case 1:
-                return false
-            case 3:
-                return false
-            case 6:
-                return true
-            case 8:
-                return true
-            default:
-                return false
-        }
-    }
-
     const maxDimensionValue = 900
     const maxPhotoSizeDimensionValue = photoSize.width > photoSize.height ? photoSize.width : photoSize.height
 
@@ -101,12 +88,6 @@ export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
         const differenceCoefficient: number = maxDimensionValue / maxPhotoSizeDimensionValue
         newPhotoSize.width = Math.round(newPhotoSize.width * differenceCoefficient)
         newPhotoSize.height = Math.round(newPhotoSize.height * differenceCoefficient)
-    }
-
-    if (shouldSwapWidthAndHeightValues(newPhotoSize.orientation)) {
-        const temp = newPhotoSize.width
-        newPhotoSize.width = newPhotoSize.height
-        newPhotoSize.height = temp
     }
 
     return newPhotoSize

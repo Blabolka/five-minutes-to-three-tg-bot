@@ -1,6 +1,6 @@
 import bot from '@bot'
 import { CallbackQuery, Message } from 'node-telegram-bot-api'
-import { getConvertMenu } from '@controllers/menus/photos-to-pdf'
+import { showPhotosToPdfConvertMenu } from '@controllers/menus/photos-to-pdf'
 import { ConvertingInfo } from '@interfaces/PhotosToPdf'
 import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 import {
@@ -16,6 +16,7 @@ import { getPhotoSize } from '@utils/photos'
 import path from 'path'
 import { isEntitiesIncludeSomeStage } from '@utils/stages'
 import sanitize from 'sanitize-filename'
+import { showStartMenu } from '@controllers/menus/start'
 
 let userFiles: ConvertingInfo[] = []
 
@@ -57,18 +58,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             })
         }
 
-        await bot.sendMessage(
-            callback.from.id,
-            '‼ Принимаются только фото без сжатия ‼\n' +
-                '‼ Имя исходного файла можно отправить сообщением ‼\n' +
-                'После загрузки фотографий нажмите "Конвертировать"',
-            {
-                reply_markup: {
-                    keyboard: getConvertMenu(),
-                    resize_keyboard: true,
-                },
-            },
-        )
+        await showPhotosToPdfConvertMenu(callback.from.id)
 
         await bot.answerCallbackQuery(callback.id)
     } catch (err) {
@@ -173,13 +163,13 @@ bot.on('message', async (msg: Message) => {
         const outputFilePath: string = path.join(dirPath, outputFileName)
         const downloadedFilesPath: string[] = await downloadPhotosToPdf(files, dirPath)
 
-        // set up first page and first photo in document
+        // set up document
         const defaultMargins = { top: 0, left: 0, bottom: 0, right: 0 }
         const doc = new PDFDocument({ autoFirstPage: false })
         const writeStream = fs.createWriteStream(outputFilePath)
         doc.pipe(writeStream)
 
-        // set up other pages in document
+        // set up pages to document
         for (let index = 0; index < downloadedFilesPath.length; index++) {
             const photoSize = await getPhotoSize(downloadedFilesPath[index])
             const matchedPhotoSize = matchPhotoSizeToPdf(photoSize)
@@ -197,6 +187,7 @@ bot.on('message', async (msg: Message) => {
                 await bot.sendChatAction(userId, 'upload_document')
                 await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
                 await bot.deleteMessage(userId, String(convertingMessage.message_id))
+                await showStartMenu(userId)
             } catch (err) {
                 console.log(err)
             }
