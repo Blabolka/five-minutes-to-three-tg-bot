@@ -11,6 +11,7 @@ export function mapUser(user: User): IUserRegister {
         first_name: user.first_name,
         last_name: user.last_name || null,
         username: user.username || null,
+        language_code: user.language_code || 'en',
     }
 }
 
@@ -19,9 +20,11 @@ export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel 
     return await UserModel.findOneAndUpdate(
         { telegram_id: user.telegram_id },
         {
+            is_bot: user.is_bot,
             first_name: user.first_name,
             last_name: user.last_name,
             username: user.username,
+            language_code: user.language_code,
         },
         {
             upsert: true,
