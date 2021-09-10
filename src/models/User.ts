@@ -10,16 +10,16 @@ const schema: Schema = new Schema(
         },
         telegram_id: {
             type: Number,
-            required: [true, '"telegram_id" is required field'],
+            required: true,
         },
         is_bot: {
             type: Boolean,
-            required: [true, '"is_bot" is required field'],
+            required: true,
         },
         first_name: {
             type: String,
             maxlength: 64,
-            required: [true, '"first_name" is required field'],
+            required: true,
         },
         last_name: {
             type: String,
@@ -30,6 +30,11 @@ const schema: Schema = new Schema(
             type: String,
             maxlength: 32,
             required: false,
+        },
+        language_code: {
+            type: String,
+            maxlength: 2,
+            required: true,
         },
     },
     {

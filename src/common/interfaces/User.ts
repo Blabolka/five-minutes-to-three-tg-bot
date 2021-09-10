@@ -5,6 +5,7 @@ export interface IUserModel {
     first_name: string
     last_name: string | null
     username: string | null
+    language_code: string
 }
 
 export interface IUserRegister {
@@ -13,4 +14,5 @@ export interface IUserRegister {
     first_name: string
     last_name: string | null
     username: string | null
+    language_code: string
 }
