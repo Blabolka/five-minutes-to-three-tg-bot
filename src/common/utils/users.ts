@@ -1,7 +1,9 @@
 import { User } from 'node-telegram-bot-api'
 import { IUserModel, IUserRegister } from '@interfaces/User'
 import UserModel from '@models/User'
+import fs from 'fs'
 
+// map telegram user for matching database user
 export function mapUser(user: User): IUserRegister {
     return {
         telegram_id: user.id,
@@ -12,6 +14,7 @@ export function mapUser(user: User): IUserRegister {
     }
 }
 
+// find user in database otherwise create new user
 export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel | null> {
     return await UserModel.findOneAndUpdate(
         { telegram_id: user.telegram_id },
@@ -25,4 +28,21 @@ export async function findOrCreateUser(user: IUserRegister): Promise<IUserModel 
             useFindAndModify: false,
         },
     ).exec()
+}
+
+// create and return personal user directory to avoid conflict between different user files
+export function getUserFilesDirectory(user: User): string {
+    function createFolderIfNotExists(path: string) {
+        if (!fs.existsSync(path)) {
+            fs.mkdirSync(path)
+        }
+    }
+
+    let dirPath = './files'
+
+    createFolderIfNotExists(dirPath)
+    dirPath += '/' + user.id
+    createFolderIfNotExists(dirPath)
+
+    return dirPath
 }

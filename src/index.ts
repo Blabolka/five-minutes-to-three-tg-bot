@@ -12,6 +12,7 @@ import '@db'
 
 // import all stages
 import '@controllers/stages/start/index'
+import '@controllers/stages/photos-to-pdf/index'
 
 // import all common controllers
 import '@controllers/common/converters/videoNote/index'
