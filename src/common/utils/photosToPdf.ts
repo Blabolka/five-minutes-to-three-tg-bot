@@ -1,4 +1,4 @@
-import { ConvertingInfo } from '@interfaces/PhotosToPdf'
+import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 import bot from '@bot'
 import path from 'path'
 import { Dimensions } from '@interfaces/Photos'
@@ -6,30 +6,6 @@ import { getPhotoSize } from '@utils/photos'
 import sharp from 'sharp'
 import fs from 'fs'
 import { nanoid } from 'nanoid'
-
-export function getIsConvertingInProcess(userFiles: ConvertingInfo[], searchUserId: number): boolean {
-    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
-
-    return userInfo ? userInfo.isConvertingInProcess : false
-}
-
-export function getUserSentFiles(userFiles: ConvertingInfo[], searchUserId: number): string[] | null {
-    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
-
-    return userInfo ? userInfo.fileIds : null
-}
-
-export function getUserSentOutputFileName(userFiles: ConvertingInfo[], searchUserId: number): string | null {
-    const userInfo: ConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
-
-    return userInfo ? userInfo.outputFileName : null
-}
-
-function findUserConvertingInfo(userFiles: ConvertingInfo[], searchUserId: number): ConvertingInfo | undefined {
-    return userFiles.find(({ userId }: ConvertingInfo) => {
-        return userId === searchUserId
-    })
-}
 
 export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): Promise<string[]> {
     const result: string[] = []
@@ -91,4 +67,31 @@ export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
     }
 
     return newPhotoSize
+}
+
+export function getIsConvertingInProcess(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): boolean {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.isConvertingInProcess : false
+}
+
+export function getUserSentFiles(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): string[] | null {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.fileIds : null
+}
+
+export function getUserSentOutputFileName(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): string | null {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+
+    return userInfo ? userInfo.outputFileName : null
+}
+
+function findUserConvertingInfo(
+    userFiles: PhotosToPdfConvertingInfo[],
+    searchUserId: number,
+): PhotosToPdfConvertingInfo | undefined {
+    return userFiles.find(({ userId }: PhotosToPdfConvertingInfo) => {
+        return userId === searchUserId
+    })
 }

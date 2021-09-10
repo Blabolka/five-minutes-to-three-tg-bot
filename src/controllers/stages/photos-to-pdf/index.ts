@@ -1,7 +1,7 @@
 import bot from '@bot'
 import { CallbackQuery, Message } from 'node-telegram-bot-api'
 import { showPhotosToPdfConvertMenu } from '@controllers/menus/photos-to-pdf'
-import { ConvertingInfo } from '@interfaces/PhotosToPdf'
+import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 import {
     getUserSentFiles,
@@ -18,7 +18,7 @@ import { isEntitiesIncludeSomeStage } from '@utils/stages'
 import sanitize from 'sanitize-filename'
 import { showStartMenu } from '@controllers/menus/start'
 
-let userFiles: ConvertingInfo[] = []
+let userFiles: PhotosToPdfConvertingInfo[] = []
 
 function setFileNameForUser(userId: number, newFileName: string) {
     for (let index = 0; index < userFiles.length; index++) {

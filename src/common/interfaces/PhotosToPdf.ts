@@ -1,4 +1,4 @@
-export interface ConvertingInfo {
+export interface PhotosToPdfConvertingInfo {
     userId: number
     fileIds: string[]
     outputFileName: string

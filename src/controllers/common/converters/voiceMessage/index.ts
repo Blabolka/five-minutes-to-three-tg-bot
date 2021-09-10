@@ -18,7 +18,7 @@ bot.on('voice', async (msg: Message) => {
             const newExtension = '.mp3'
             const newFilePath = filePath.substring(0, filePath.lastIndexOf(oldExtension)) + newExtension
 
-            new Promise((resolve, reject) => {
+            await new Promise((resolve, reject) => {
                 fs.rename(filePath, newFilePath, (err) => {
                     if (err) {
                         reject(err)
