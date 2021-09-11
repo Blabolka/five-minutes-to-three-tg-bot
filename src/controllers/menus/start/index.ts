@@ -7,7 +7,7 @@ export async function showStartMenu(chatId: number): Promise<Message> {
             remove_keyboard: true,
         },
     })
-    return await bot.sendMessage(chatId, 'Выберите нужную вам категорию.', {
+    return await bot.sendMessage(chatId, 'Выберите нужную вам категорию:', {
         reply_markup: {
             inline_keyboard: getStartMenuKeyboard(),
         },
