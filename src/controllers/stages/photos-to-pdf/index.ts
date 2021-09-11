@@ -1,6 +1,10 @@
 import bot from '@bot'
 import { CallbackQuery, Message } from 'node-telegram-bot-api'
-import { showPhotosToPdfConvertMenu } from '@controllers/menus/photos-to-pdf'
+import {
+    showPhotosToPdfConvertMenu,
+    showSizeLimitExceededMessage,
+    showUnknownPhotoSizeMessage,
+} from '@controllers/menus/photos-to-pdf'
 import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 import {
@@ -9,6 +13,7 @@ import {
     downloadPhotosToPdf,
     getIsConvertingInProcess,
     matchPhotoSizeToPdf,
+    getUserFilesSummarySizeInfo,
 } from '@utils/photosToPdf'
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
@@ -17,30 +22,9 @@ import path from 'path'
 import { isEntitiesIncludeSomeStage } from '@utils/stages'
 import sanitize from 'sanitize-filename'
 import { showStartMenu } from '@controllers/menus/start'
+import { MAX_FILE_SUMMARY_SIZE } from '@constants/photosToPdf'
 
 let userFiles: PhotosToPdfConvertingInfo[] = []
-
-function setFileNameForUser(userId: number, newFileName: string) {
-    for (let index = 0; index < userFiles.length; index++) {
-        if (userFiles[index].userId === userId) {
-            userFiles[index].outputFileName = newFileName
-            break
-        }
-    }
-}
-
-function setConvertingStateForUser(userId: number, newConvertingState: boolean) {
-    for (let index = 0; index < userFiles.length; index++) {
-        if (userFiles[index].userId === userId) {
-            userFiles[index].isConvertingInProcess = newConvertingState
-            break
-        }
-    }
-}
-
-function removeUserFromList(userId: number): void {
-    userFiles = userFiles.filter((item) => item.userId !== userId)
-}
 
 // show user converting from photos to pdf menu
 bot.on('callback_query', async (callback: CallbackQuery) => {
@@ -53,6 +37,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             userFiles.push({
                 userId: callback.from.id,
                 fileIds: [],
+                filesSummarySize: 0,
                 outputFileName: callback.from.first_name,
                 isConvertingInProcess: false,
             })
@@ -78,7 +63,24 @@ bot.on('photo', async (msg: Message) => {
                 return
             }
 
-            files.push(msg.photo[msg.photo.length - 1].file_id)
+            // take last photo because it has better quality
+            const lastPhoto = msg.photo[msg.photo.length - 1]
+
+            const summarySize: number | null = getUserFilesSummarySizeInfo(userFiles, msg.from.id)
+
+            // check if we have info about file size
+            if (summarySize !== null && lastPhoto.file_size) {
+                // check if next photo will not exceed the limit
+                if (summarySize + lastPhoto.file_size < MAX_FILE_SUMMARY_SIZE) {
+                    // add photo id and increase summary file size
+                    files.push(lastPhoto.file_id)
+                    setFileSummarySizeForUser(msg.from.id, summarySize + lastPhoto.file_size)
+                } else {
+                    await showSizeLimitExceededMessage(msg.from.id)
+                }
+            } else {
+                await showUnknownPhotoSizeMessage(msg.from.id)
+            }
         }
     } catch (err) {
         console.log(err)
@@ -103,7 +105,20 @@ bot.on('document', async (msg: Message) => {
                 return
             }
 
-            files.push(msg.document.file_id)
+            const summarySize: number | null = getUserFilesSummarySizeInfo(userFiles, msg.from.id)
+            // check if we have info about file size
+            if (summarySize !== null && msg.document.file_size) {
+                // check if next photo will not exceed the limit
+                if (summarySize + msg.document.file_size < MAX_FILE_SUMMARY_SIZE) {
+                    // add photo id and increase summary file size
+                    files.push(msg.document.file_id)
+                    setFileSummarySizeForUser(msg.from.id, summarySize + msg.document.file_size)
+                } else {
+                    await showSizeLimitExceededMessage(msg.from.id)
+                }
+            } else {
+                await showUnknownPhotoSizeMessage(msg.from.id)
+            }
         }
     } catch (err) {
         console.log(err)
@@ -232,3 +247,34 @@ bot.on('message', async (msg: Message) => {
         console.log(err)
     }
 })
+
+function setFileNameForUser(userId: number, newFileName: string) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].outputFileName = newFileName
+            break
+        }
+    }
+}
+
+function setConvertingStateForUser(userId: number, newConvertingState: boolean) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].isConvertingInProcess = newConvertingState
+            break
+        }
+    }
+}
+
+function setFileSummarySizeForUser(userId: number, newFilesSummarySize: number) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].filesSummarySize = newFilesSummarySize
+            break
+        }
+    }
+}
+
+function removeUserFromList(userId: number): void {
+    userFiles = userFiles.filter((item) => item.userId !== userId)
+}

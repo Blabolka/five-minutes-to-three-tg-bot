@@ -69,22 +69,28 @@ export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
     return newPhotoSize
 }
 
-export function getIsConvertingInProcess(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): boolean {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+export function getIsConvertingInProcess(userFiles: PhotosToPdfConvertingInfo[], userId: number): boolean {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
 
     return userInfo ? userInfo.isConvertingInProcess : false
 }
 
-export function getUserSentFiles(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): string[] | null {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+export function getUserSentFiles(userFiles: PhotosToPdfConvertingInfo[], userId: number): string[] | null {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
 
     return userInfo ? userInfo.fileIds : null
 }
 
-export function getUserSentOutputFileName(userFiles: PhotosToPdfConvertingInfo[], searchUserId: number): string | null {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, searchUserId)
+export function getUserSentOutputFileName(userFiles: PhotosToPdfConvertingInfo[], userId: number): string | null {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
 
     return userInfo ? userInfo.outputFileName : null
+}
+
+export function getUserFilesSummarySizeInfo(userFiles: PhotosToPdfConvertingInfo[], userId: number): number | null {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
+
+    return userInfo ? userInfo.filesSummarySize : null
 }
 
 function findUserConvertingInfo(
