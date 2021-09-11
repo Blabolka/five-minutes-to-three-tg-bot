@@ -226,7 +226,15 @@ bot.on('message', async (msg: Message) => {
         writeStream.on('finish', async () => {
             try {
                 await bot.sendChatAction(userId, 'upload_document')
-                await bot.sendDocument(userId, fs.createReadStream(outputFilePath))
+                await bot.sendDocument(
+                    userId,
+                    fs.readFileSync(outputFilePath),
+                    {},
+                    {
+                        filename: outputFileName,
+                        contentType: 'application/pdf',
+                    },
+                )
                 await bot.deleteMessage(userId, String(convertingMessage.message_id))
                 await showStartMenu(userId)
             } catch (err) {
