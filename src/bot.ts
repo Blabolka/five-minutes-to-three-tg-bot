@@ -20,6 +20,12 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 const router: Router = Router()
+
+// Send OK on heroku add-on ping
+router.get('/', (req: Request, res: Response) => {
+    res.sendStatus(200).send('OK')
+})
+// webhook for bot
 router.post('/bot', (req: Request, res: Response) => {
     bot.processUpdate(req.body)
     res.sendStatus(200)
