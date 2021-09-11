@@ -1,11 +1,12 @@
 import bot from '@bot'
 import { Message } from 'node-telegram-bot-api'
-import { getUserFilesDirectory } from '@utils/users'
+import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 import fs from 'fs'
 
 bot.on('video_note', async (msg: Message) => {
     try {
         if (msg.video_note && msg.from) {
+            await findOrCreateUser(mapUser(msg.from))
             await bot.sendChatAction(msg.from.id, 'upload_video')
 
             const dirPath: string = getUserFilesDirectory(msg.from)
