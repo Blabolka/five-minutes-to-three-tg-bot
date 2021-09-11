@@ -4,8 +4,8 @@ import bot from '@bot'
 export async function showPhotosToPdfConvertMenu(chatId: number): Promise<Message> {
     return await bot.sendMessage(
         chatId,
-        '‼ Принимаются только фото без сжатия ‼\n' +
-            '‼ Имя исходного файла можно отправить сообщением ‼\n' +
+        'ℹ Имя исходного файла можно отправить сообщением\n' +
+            'ℹ Можно отправить фото без сжатия для лучшего качества\n\n' +
             'После загрузки фотографий нажмите "Конвертировать"',
         {
             reply_markup: {

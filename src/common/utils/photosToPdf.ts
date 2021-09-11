@@ -22,9 +22,9 @@ export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): P
 
         // compress image size
         if (fileExtension === '.jpg') {
-            sharpPhoto.jpeg({ quality: 90 })
+            sharpPhoto.jpeg({ quality: 95 })
         } else {
-            sharpPhoto.png({ quality: 90 })
+            sharpPhoto.png({ quality: 95 })
         }
 
         // addition rotate if need

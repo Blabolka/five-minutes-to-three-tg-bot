@@ -66,22 +66,44 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
     }
 })
 
-// if user sent photo
+// if user send photo as photo
+bot.on('photo', async (msg: Message) => {
+    try {
+        if (msg.from && msg.photo && msg.photo.length > 0) {
+            await findOrCreateUser(mapUser(msg.from))
+
+            const files: string[] | null = getUserSentFiles(userFiles, msg.from.id)
+
+            if (!files) {
+                return
+            }
+
+            files.push(msg.photo[msg.photo.length - 1].file_id)
+        }
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// if user sent photo as file
 bot.on('document', async (msg: Message) => {
     try {
         if (msg.from && msg.document) {
             await findOrCreateUser(mapUser(msg.from))
 
-            if (!msg.document || (msg.document.mime_type !== 'image/jpeg' && msg.document.mime_type !== 'image/png')) {
-                await bot.sendMessage(msg.from.id, '‼ Проверьте корректность загружаемого файла ‼')
+            const files: string[] | null = getUserSentFiles(userFiles, msg.from.id)
+
+            if (!files) {
                 return
             }
 
-            const files: string[] | null = getUserSentFiles(userFiles, msg.from.id)
-
-            if (files) {
-                files.push(msg.document.file_id)
+            // check file types (only .jpg and .png available)
+            if (msg.document.mime_type !== 'image/jpeg' && msg.document.mime_type !== 'image/png') {
+                await bot.sendMessage(msg.from.id, '‼ Принимаются только файлы типа .jpg и .png')
+                return
             }
+
+            files.push(msg.document.file_id)
         }
     } catch (err) {
         console.log(err)
@@ -90,8 +112,12 @@ bot.on('document', async (msg: Message) => {
 
 // if user change stage to another
 bot.on('message', async (msg: Message) => {
-    if (msg.from && msg.text && msg.entities && isEntitiesIncludeSomeStage(msg.entities, msg.text)) {
-        removeUserFromList(msg.from.id)
+    try {
+        if (msg.from && msg.text && msg.entities && isEntitiesIncludeSomeStage(msg.entities, msg.text)) {
+            removeUserFromList(msg.from.id)
+        }
+    } catch (err) {
+        console.log(err)
     }
 })
 
