@@ -38,7 +38,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 userId: callback.from.id,
                 fileIds: [],
                 filesSummarySize: 0,
-                outputFileName: callback.from.first_name,
+                outputFileName: sanitize(callback.from.first_name) || 'filename',
                 isConvertingInProcess: false,
             })
         }
