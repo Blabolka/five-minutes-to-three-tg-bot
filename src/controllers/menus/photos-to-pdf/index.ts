@@ -1,5 +1,6 @@
 import { KeyboardButton, Message } from 'node-telegram-bot-api'
 import bot from '@bot'
+import { MAX_MEGABYTES } from '@constants/photosToPdf'
 
 export async function showPhotosToPdfConvertMenu(chatId: number): Promise<Message> {
     function getPhotosToPdfConvertKeyboard(): KeyboardButton[][] {
@@ -23,7 +24,10 @@ export async function showPhotosToPdfConvertMenu(chatId: number): Promise<Messag
 }
 
 export async function showSizeLimitExceededMessage(chatId: number): Promise<Message> {
-    return await bot.sendMessage(chatId, '‼ Превышен предел суммарной памяти фотографий для конвертации (50 МБ)')
+    return await bot.sendMessage(
+        chatId,
+        `‼ Превышен предел суммарной памяти фотографий для конвертации (${MAX_MEGABYTES} МБ)`,
+    )
 }
 
 export async function showUnknownPhotoSizeMessage(chatId: number): Promise<Message> {
