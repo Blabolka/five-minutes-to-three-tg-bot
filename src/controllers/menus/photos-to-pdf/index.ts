@@ -23,7 +23,7 @@ export async function showPhotosToPdfConvertMenu(chatId: number): Promise<Messag
 }
 
 export async function showSizeLimitExceededMessage(chatId: number): Promise<Message> {
-    return await bot.sendMessage(chatId, '‼ Превышен предел суммарной памяти фотографий для конвертации (64 МБ)')
+    return await bot.sendMessage(chatId, '‼ Превышен предел суммарной памяти фотографий для конвертации (50 МБ)')
 }
 
 export async function showUnknownPhotoSizeMessage(chatId: number): Promise<Message> {
