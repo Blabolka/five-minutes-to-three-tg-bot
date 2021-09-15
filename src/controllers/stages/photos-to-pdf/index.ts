@@ -14,6 +14,7 @@ import {
     getIsConvertingInProcess,
     matchPhotoSizeToPdf,
     getUserFilesSummarySizeInfo,
+    getUserSizeLimitMessageState,
 } from '@utils/photosToPdf'
 import PDFDocument from 'pdfkit'
 import fs from 'fs'
@@ -38,6 +39,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
                 userId: callback.from.id,
                 fileIds: [],
                 filesSummarySize: 0,
+                sizeLimitMessageWasShown: false,
                 outputFileName: sanitize(callback.from.first_name) || 'filename',
                 isConvertingInProcess: false,
             })
@@ -55,8 +57,6 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 bot.on('photo', async (msg: Message) => {
     try {
         if (msg.from && msg.photo && msg.photo.length > 0) {
-            await findOrCreateUser(mapUser(msg.from))
-
             const files: string[] | null = getUserSentFiles(userFiles, msg.from.id)
 
             if (!files) {
@@ -75,8 +75,9 @@ bot.on('photo', async (msg: Message) => {
                     // add photo id and increase summary file size
                     files.push(lastPhoto.file_id)
                     setFileSummarySizeForUser(msg.from.id, summarySize + lastPhoto.file_size)
-                } else {
+                } else if (!getUserSizeLimitMessageState(userFiles, msg.from.id)) {
                     await showSizeLimitExceededMessage(msg.from.id)
+                    setSizeLimitShownMessageState(msg.from.id, true)
                 }
             } else {
                 await showUnknownPhotoSizeMessage(msg.from.id)
@@ -91,8 +92,6 @@ bot.on('photo', async (msg: Message) => {
 bot.on('document', async (msg: Message) => {
     try {
         if (msg.from && msg.document) {
-            await findOrCreateUser(mapUser(msg.from))
-
             const files: string[] | null = getUserSentFiles(userFiles, msg.from.id)
 
             if (!files) {
@@ -113,8 +112,9 @@ bot.on('document', async (msg: Message) => {
                     // add photo id and increase summary file size
                     files.push(msg.document.file_id)
                     setFileSummarySizeForUser(msg.from.id, summarySize + msg.document.file_size)
-                } else {
+                } else if (!getUserSizeLimitMessageState(userFiles, msg.from.id)) {
                     await showSizeLimitExceededMessage(msg.from.id)
+                    setSizeLimitShownMessageState(msg.from.id, true)
                 }
             } else {
                 await showUnknownPhotoSizeMessage(msg.from.id)
@@ -129,6 +129,7 @@ bot.on('document', async (msg: Message) => {
 bot.on('message', async (msg: Message) => {
     try {
         if (msg.from && msg.text && msg.entities && isEntitiesIncludeSomeStage(msg.entities, msg.text)) {
+            await findOrCreateUser(mapUser(msg.from))
             removeUserFromList(msg.from.id)
         }
     } catch (err) {
@@ -260,6 +261,15 @@ function setFileNameForUser(userId: number, newFileName: string) {
     for (let index = 0; index < userFiles.length; index++) {
         if (userFiles[index].userId === userId) {
             userFiles[index].outputFileName = newFileName
+            break
+        }
+    }
+}
+
+function setSizeLimitShownMessageState(userId: number, newLimitState: boolean) {
+    for (let index = 0; index < userFiles.length; index++) {
+        if (userFiles[index].userId === userId) {
+            userFiles[index].sizeLimitMessageWasShown = newLimitState
             break
         }
     }

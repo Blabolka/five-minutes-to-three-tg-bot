@@ -75,6 +75,12 @@ export function getIsConvertingInProcess(userFiles: PhotosToPdfConvertingInfo[],
     return userInfo ? userInfo.isConvertingInProcess : false
 }
 
+export function getUserSizeLimitMessageState(userFiles: PhotosToPdfConvertingInfo[], userId: number): boolean {
+    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
+
+    return userInfo ? userInfo.sizeLimitMessageWasShown : false
+}
+
 export function getUserSentFiles(userFiles: PhotosToPdfConvertingInfo[], userId: number): string[] | null {
     const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
 
