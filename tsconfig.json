@@ -9,6 +9,9 @@
 
     /* Strict Type-Checking Options */
     "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": false,
+    "allowJs": true,
 
     /* Module Resolution Options */
     "moduleResolution": "node",
@@ -21,6 +24,7 @@
       "@utils/*": ["common/utils/*"],
       "@tools/*": ["common/tools/*"],
       "@controllers/*": ["controllers/*"],
+      "@services/*": ["common/services/*"],
       "@constants/*": ["common/constants/*"],
       "@interfaces/*": ["common/interfaces/*"]
     },

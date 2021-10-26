@@ -13,7 +13,7 @@ import '@db'
 // import all stages
 import '@controllers/stages/start/index'
 import '@controllers/stages/photos-to-pdf/index'
+import '@controllers/stages/voice-to-mp3/index'
 
 // import all common controllers
 import '@controllers/common/converters/videoNote/index'
-import '@controllers/common/converters/voiceMessage/index'
