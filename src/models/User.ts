@@ -1,6 +1,6 @@
-import { Schema, model, Model } from 'mongoose'
 import { nanoid } from 'nanoid'
 import { IUserModel } from '@interfaces/User'
+import { Schema, model, Model } from 'mongoose'
 
 const schema: Schema = new Schema(
     {

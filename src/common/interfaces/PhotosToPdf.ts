@@ -1,7 +1,7 @@
 export interface PhotosToPdfConvertingInfo {
-    userId: number
     fileIds: string[]
-    filesSummarySize: number
     outputFileName: string
+    filesSummarySize: number
     isConvertingInProcess: boolean
+    sizeLimitMessageWasShown: boolean
 }

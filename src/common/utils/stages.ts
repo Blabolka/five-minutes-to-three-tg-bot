@@ -1,5 +1,5 @@
+import commands from '@common/commands.json'
 import { MessageEntity } from 'node-telegram-bot-api'
-import stages from '@common/stages.json'
 
 export function isEntitiesIncludeSomeStage(entities: MessageEntity[], messageText: string): boolean {
     const containBotCommand: boolean = entities.some((item) => {
@@ -7,7 +7,7 @@ export function isEntitiesIncludeSomeStage(entities: MessageEntity[], messageTex
     })
 
     const containExistingBotCommand = containBotCommand
-        ? stages.some((stage) => messageText.includes(stage.command))
+        ? commands.some((stage) => messageText.includes(stage.command))
         : false
 
     return containBotCommand && containExistingBotCommand

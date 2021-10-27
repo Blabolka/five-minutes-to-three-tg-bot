@@ -56,6 +56,7 @@
     "@utils": "dist/common/utils",
     "@tools": "dist/common/tools",
     "@controllers": "dist/controllers",
+    "@services": "dist/common/services",
     "@constants": "dist/common/constants",
     "@interfaces": "dist/common/interfaces"
   }
