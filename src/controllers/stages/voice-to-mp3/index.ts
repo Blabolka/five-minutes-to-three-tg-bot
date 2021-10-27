@@ -1,43 +1,27 @@
-import bot from '@bot'
-import { CallbackQuery, Message } from 'node-telegram-bot-api'
-import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
-import path from 'path'
 import fs from 'fs'
+import bot from '@bot'
+import path from 'path'
+import stageManager from '@services/StageManager'
+import { CallbackQuery, Message } from 'node-telegram-bot-api'
 import { showVoiceToMp3Menu } from '@controllers/menus/voice-to-mp3'
-import { isEntitiesIncludeSomeStage } from '@utils/stages'
-
-let usersInMenu: number[] = []
+import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 
 // show user converting from voices to mp3 menu
 bot.on('callback_query', async (callback: CallbackQuery) => {
     if (callback.data !== 'voice-to-mp3') return
-    await findOrCreateUser(mapUser(callback.from))
 
-    if (!isUserExistsInMenu(callback.from.id)) {
-        usersInMenu.push(callback.from.id)
-    }
+    await findOrCreateUser(mapUser(callback.from))
+    stageManager.setStageForUser(callback.from.id, 'voice-to-mp3')
 
     await showVoiceToMp3Menu(callback.from.id)
 
     await bot.answerCallbackQuery(callback.id)
 })
 
-// if user change stage to another
-bot.on('message', async (msg: Message) => {
-    try {
-        if (msg.from && msg.text && msg.entities && isEntitiesIncludeSomeStage(msg.entities, msg.text)) {
-            await findOrCreateUser(mapUser(msg.from))
-            removeUserFromList(msg.from.id)
-        }
-    } catch (err) {
-        console.log(err)
-    }
-})
-
-// if user send voice message and exists in the menu
+// if user send voice message and exists in the stage
 bot.on('voice', async (msg: Message) => {
     try {
-        if (msg.voice && msg.from && isUserExistsInMenu(msg.from.id)) {
+        if (msg.voice && msg.from && stageManager.isUserInStage(msg.from.id, 'voice-to-mp3')) {
             await findOrCreateUser(mapUser(msg.from))
             await bot.sendChatAction(msg.from.id, 'record_audio')
 
@@ -70,11 +54,3 @@ bot.on('voice', async (msg: Message) => {
         console.log(err)
     }
 })
-
-function isUserExistsInMenu(userId: number): boolean {
-    return usersInMenu.some((id) => id === userId)
-}
-
-function removeUserFromList(userId: number): void {
-    usersInMenu = usersInMenu.filter((id) => id !== userId)
-}

@@ -1,7 +1,7 @@
+import fs from 'fs'
+import UserModel from '@models/User'
 import { User } from 'node-telegram-bot-api'
 import { IUserModel, IUserRegister } from '@interfaces/User'
-import UserModel from '@models/User'
-import fs from 'fs'
 
 // map telegram user for matching database user
 export function mapUser(user: User): IUserRegister {

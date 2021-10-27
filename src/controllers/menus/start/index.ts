@@ -17,7 +17,7 @@ export async function showStartMenu(chatId: number): Promise<Message> {
 function getStartMenuKeyboard(): InlineKeyboardButton[][] {
     const photosToPdfButton: InlineKeyboardButton = { text: 'Фото в .pdf', callback_data: 'photos-to-pdf' }
     const voiceMessageToMP3: InlineKeyboardButton = { text: 'Войсы в .mp3', callback_data: 'voice-to-mp3' }
-    const videoNoteToMP4: InlineKeyboardButton = { text: 'Кружки в .mp4', callback_data: 'videonote-to-mp4' }
+    const videoNoteToMP4: InlineKeyboardButton = { text: 'Кружки в .mp4', callback_data: 'video-note-to-mp4' }
 
     return [[photosToPdfButton], [voiceMessageToMP3], [videoNoteToMP4]]
 }

@@ -1,6 +1,7 @@
-export type Stages = 'start' | 'photos-to-pdf' | 'voice-to-mp3'
+import { Stages } from './Stages'
 
 export interface UserStage {
     userId: number
     stage: Stages
+    stageData: any
 }

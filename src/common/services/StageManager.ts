@@ -1,4 +1,5 @@
-import { Stages, UserStage } from '@interfaces/UserStage'
+import { Stages } from '@interfaces/Stages'
+import { UserStage } from '@interfaces/UserStage'
 
 class StageManager {
     #userStages: UserStage[]
@@ -13,14 +14,25 @@ class StageManager {
         })
     }
 
-    setStateForUser(userId: number, stage: Stages) {
+    setStageForUser(userId: number, stage: Stages, stageData = {}) {
         const userInStage = this.#getUserInStage(userId)
 
-        if (!userInStage) {
-            this.#userStages.push({ userId, stage })
-        } else {
+        if (userInStage) {
             userInStage.stage = stage
+            userInStage.stageData = stageData
+        } else {
+            this.#userStages.push({ userId, stage, stageData })
         }
+    }
+
+    getUserStageData(userId: number): any | undefined {
+        const userInStage = this.#getUserInStage(userId)
+
+        if (userInStage) {
+            return Object.assign({}, userInStage.stageData)
+        }
+
+        return undefined
     }
 
     #getUserInStage(userId: number): UserStage | undefined {
