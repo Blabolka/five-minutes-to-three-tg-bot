@@ -1,11 +1,10 @@
-import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
+import fs from 'fs'
 import bot from '@bot'
 import path from 'path'
-import { Dimensions } from '@interfaces/Photos'
-import { getPhotoSize } from '@utils/photos'
 import sharp from 'sharp'
-import fs from 'fs'
 import { nanoid } from 'nanoid'
+import { getPhotoSize } from '@utils/photos'
+import { Dimensions } from '@interfaces/Photos'
 
 export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): Promise<string[]> {
     const result: string[] = []
@@ -67,43 +66,4 @@ export function matchPhotoSizeToPdf(photoSize: Dimensions): Dimensions {
     }
 
     return newPhotoSize
-}
-
-export function getIsConvertingInProcess(userFiles: PhotosToPdfConvertingInfo[], userId: number): boolean {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
-
-    return userInfo ? userInfo.isConvertingInProcess : false
-}
-
-export function getUserSizeLimitMessageState(userFiles: PhotosToPdfConvertingInfo[], userId: number): boolean {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
-
-    return userInfo ? userInfo.sizeLimitMessageWasShown : false
-}
-
-export function getUserSentFiles(userFiles: PhotosToPdfConvertingInfo[], userId: number): string[] | null {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
-
-    return userInfo ? userInfo.fileIds : null
-}
-
-export function getUserSentOutputFileName(userFiles: PhotosToPdfConvertingInfo[], userId: number): string | null {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
-
-    return userInfo ? userInfo.outputFileName : null
-}
-
-export function getUserFilesSummarySizeInfo(userFiles: PhotosToPdfConvertingInfo[], userId: number): number | null {
-    const userInfo: PhotosToPdfConvertingInfo | undefined = findUserConvertingInfo(userFiles, userId)
-
-    return userInfo ? userInfo.filesSummarySize : null
-}
-
-function findUserConvertingInfo(
-    userFiles: PhotosToPdfConvertingInfo[],
-    searchUserId: number,
-): PhotosToPdfConvertingInfo | undefined {
-    return userFiles.find(({ userId }: PhotosToPdfConvertingInfo) => {
-        return userId === searchUserId
-    })
 }

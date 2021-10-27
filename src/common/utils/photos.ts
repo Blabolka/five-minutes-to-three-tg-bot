@@ -1,5 +1,5 @@
-import { Dimensions } from '@interfaces/Photos'
 import { imageSize } from 'image-size'
+import { Dimensions } from '@interfaces/Photos'
 
 export function getPhotoSize(filePath: string): Promise<Dimensions> {
     return new Promise((resolve, reject) => {

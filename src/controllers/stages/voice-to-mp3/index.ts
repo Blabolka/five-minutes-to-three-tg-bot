@@ -1,12 +1,27 @@
-import bot from '@bot'
-import { Message } from 'node-telegram-bot-api'
 import fs from 'fs'
-import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
+import bot from '@bot'
 import path from 'path'
+import stageManager from '@services/StageManager'
+import { CallbackQuery, Message } from 'node-telegram-bot-api'
+import { showVoiceToMp3Menu } from '@controllers/menus/voice-to-mp3'
+import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 
+// show user converting from voices to mp3 menu
+bot.on('callback_query', async (callback: CallbackQuery) => {
+    if (callback.data !== 'voice-to-mp3') return
+
+    await findOrCreateUser(mapUser(callback.from))
+    stageManager.setStageForUser(callback.from.id, 'voice-to-mp3')
+
+    await showVoiceToMp3Menu(callback.from.id)
+
+    await bot.answerCallbackQuery(callback.id)
+})
+
+// if user send voice message and exists in the stage
 bot.on('voice', async (msg: Message) => {
     try {
-        if (msg.voice && msg.from) {
+        if (msg.voice && msg.from && stageManager.isUserInStage(msg.from.id, 'voice-to-mp3')) {
             await findOrCreateUser(mapUser(msg.from))
             await bot.sendChatAction(msg.from.id, 'record_audio')
 
