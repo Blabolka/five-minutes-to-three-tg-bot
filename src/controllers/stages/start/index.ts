@@ -1,4 +1,6 @@
 import bot from '@bot'
+import logger from '@services/Logger'
+import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
 import { findOrCreateUser, mapUser } from '@utils/users'
@@ -8,12 +10,22 @@ import { showStartMenu } from '@controllers/menus/start'
 bot.on('message', async (msg: Message) => {
     try {
         if (msg.text === '/start' && msg.from) {
+            const processTime = new Date()
+
             await findOrCreateUser(mapUser(msg.from))
+
             stageManager.setStageForUser(msg.from.id, 'start')
 
             await showStartMenu(msg.from.id)
+
+            logger.log(
+                LogLevels.INFO,
+                'Start menu',
+                `USER: ${JSON.stringify(msg)}`,
+                processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+            )
         }
     } catch (err) {
-        console.error(err)
+        logger.log(LogLevels.ERROR, 'Start menu', `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`, 0)
     }
 })
