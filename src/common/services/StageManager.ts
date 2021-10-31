@@ -2,7 +2,7 @@ import { Stages } from '@interfaces/Stages'
 import { UserStage } from '@interfaces/UserStage'
 
 class StageManager {
-    #userStages: UserStage[]
+    readonly #userStages: UserStage[]
 
     constructor() {
         this.#userStages = []
