@@ -1,5 +1,7 @@
 import bot from '@bot'
+import logger from '@services/Logger'
 import sanitize from 'sanitize-filename'
+import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
 import { findOrCreateUser, mapUser } from '@utils/users'
@@ -16,6 +18,8 @@ bot.on('message', async (msg: Message) => {
             !msg.entities &&
             msg.text !== 'Конвертировать'
         ) {
+            const processTime = new Date()
+
             await findOrCreateUser(mapUser(msg.from))
             const userStageData: PhotosToPdfConvertingInfo = stageManager.getUserStageData(msg.from.id)
 
@@ -37,9 +41,33 @@ bot.on('message', async (msg: Message) => {
                         parse_mode: 'HTML',
                     },
                 )
+
+                logger.log(
+                    LogLevels.INFO,
+                    `Change filename in 'photos-to-pdf' menu. New filename is ${sanitizedFileName}`,
+                    `USER: ${JSON.stringify(msg)}`,
+                    processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+                )
+            } else {
+                await bot.sendMessage(
+                    msg.from.id,
+                    '‼ Некорректное название файла.\n' + 'Имя файла не должно содержать следующих знаков: \\/:*?"<>|',
+                )
+
+                logger.log(
+                    LogLevels.INFO,
+                    "Change filename in 'photos-to-pdf' menu. Filename includes incorrect symbols",
+                    `USER: ${JSON.stringify(msg)}`,
+                    processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+                )
             }
         }
     } catch (err) {
-        console.log(err)
+        logger.log(
+            LogLevels.ERROR,
+            "Change filename in 'photos-to-pdf' menu",
+            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            0,
+        )
     }
 })

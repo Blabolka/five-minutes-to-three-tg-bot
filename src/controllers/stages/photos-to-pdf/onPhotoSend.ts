@@ -1,4 +1,6 @@
 import bot from '@bot'
+import logger from '@services/Logger'
+import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
 import { MAX_FILE_SUMMARY_SIZE } from '@constants/photosToPdf'
@@ -9,6 +11,8 @@ import { showSizeLimitExceededMessage, showUnknownPhotoSizeMessage } from '@cont
 bot.on('photo', async (msg: Message) => {
     try {
         if (msg.from && msg.photo && msg.photo.length > 0 && stageManager.isUserInStage(msg.from.id, 'photos-to-pdf')) {
+            const processTime = new Date()
+
             const userStageData: PhotosToPdfConvertingInfo | undefined = stageManager.getUserStageData(msg.from.id)
 
             if (!userStageData) {
@@ -36,9 +40,21 @@ bot.on('photo', async (msg: Message) => {
             } else {
                 await showUnknownPhotoSizeMessage(msg.from.id)
             }
+
+            logger.log(
+                LogLevels.INFO,
+                "User send photo as photo in 'photos-to-pdf' menu",
+                `USER: ${JSON.stringify(msg)}`,
+                processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+            )
         }
     } catch (err) {
-        console.log(err)
+        logger.log(
+            LogLevels.ERROR,
+            "User send photo as photo in 'photos-to-pdf' menu",
+            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            0,
+        )
     }
 })
 
@@ -46,6 +62,7 @@ bot.on('photo', async (msg: Message) => {
 bot.on('document', async (msg: Message) => {
     try {
         if (msg.from && msg.document) {
+            const processTime = new Date()
             const userStageData: PhotosToPdfConvertingInfo | undefined = stageManager.getUserStageData(msg.from.id)
 
             if (!userStageData) {
@@ -76,8 +93,20 @@ bot.on('document', async (msg: Message) => {
             } else {
                 await showUnknownPhotoSizeMessage(msg.from.id)
             }
+
+            logger.log(
+                LogLevels.INFO,
+                "User send photo as file in 'photos-to-pdf' menu",
+                `USER: ${JSON.stringify(msg)}`,
+                processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+            )
         }
     } catch (err) {
-        console.log(err)
+        logger.log(
+            LogLevels.ERROR,
+            "User send photo as file in 'photos-to-pdf' menu",
+            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            0,
+        )
     }
 })

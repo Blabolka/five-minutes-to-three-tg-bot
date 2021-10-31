@@ -2,7 +2,9 @@ import fs from 'fs'
 import bot from '@bot'
 import path from 'path'
 import PDFDocument from 'pdfkit'
+import logger from '@services/Logger'
 import { getPhotoSize } from '@utils/photos'
+import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
 import { showStartMenu } from '@controllers/menus/start'
@@ -16,6 +18,7 @@ bot.on('message', async (msg: Message) => {
         if (msg.text !== 'Конвертировать' || !msg.from || !stageManager.isUserInStage(msg.from.id, 'photos-to-pdf')) {
             return
         }
+        const processTime = new Date()
 
         const userId = msg.from.id
 
@@ -77,10 +80,25 @@ bot.on('message', async (msg: Message) => {
                     },
                 )
                 await bot.deleteMessage(userId, String(convertingMessage.message_id))
+
+                logger.log(
+                    LogLevels.INFO,
+                    "Send document in 'photos-to-pdf' menu",
+                    `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(userStageData)}`,
+                    processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+                )
+
                 await showStartMenu(userId)
                 stageManager.setStageForUser(userId, 'start')
             } catch (err) {
-                console.log(err)
+                logger.log(
+                    LogLevels.ERROR,
+                    "Send document in 'photos-to-pdf' menu",
+                    `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(
+                        userStageData,
+                    )}\nERROR: ${JSON.stringify(err)}`,
+                    processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+                )
             }
 
             fs.unlinkSync(outputFilePath)
@@ -90,9 +108,21 @@ bot.on('message', async (msg: Message) => {
         })
 
         writeStream.on('error', async (err) => {
-            console.log(err)
+            logger.log(
+                LogLevels.ERROR,
+                'Converting photos-to-pdf',
+                `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(userStageData)}\nERROR: ${JSON.stringify(
+                    err,
+                )}`,
+                processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
+            )
         })
     } catch (err) {
-        console.log(err)
+        logger.log(
+            LogLevels.ERROR,
+            'Converting photos-to-pdf',
+            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            0,
+        )
     }
 })
