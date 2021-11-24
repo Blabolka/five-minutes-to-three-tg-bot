@@ -17,6 +17,7 @@ export async function showStartMenu(chatId: number): Promise<Message> {
 
 function getStartMenuKeyboard(): InlineKeyboardButton[][] {
     const convertingMenu: InlineKeyboardButton = { text: 'Конвертация', callback_data: Stages.CONVERTING_MENU }
+    const modificationMenu: InlineKeyboardButton = { text: 'Модификация', callback_data: Stages.MODIFICATION_MENU }
 
-    return [[convertingMenu]]
+    return [[convertingMenu], [modificationMenu]]
 }

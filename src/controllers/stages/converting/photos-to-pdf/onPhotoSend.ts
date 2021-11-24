@@ -67,7 +67,7 @@ bot.on('photo', async (msg: Message) => {
 // if user sent photo as file
 bot.on('document', async (msg: Message) => {
     try {
-        if (msg.from && msg.document) {
+        if (msg.from && msg.document && stageManager.isUserInStage(msg.from.id, Stages.PHOTOS_TO_PDF)) {
             const processTime = new Date()
             const userStageData: PhotosToPdfConvertingInfo | undefined = stageManager.getUserStageData(msg.from.id)
 
