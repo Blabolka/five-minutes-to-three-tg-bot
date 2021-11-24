@@ -1,17 +1,18 @@
 import bot from '@bot'
 import logger from '@services/Logger'
 import sanitize from 'sanitize-filename'
+import { Stages } from '@interfaces/Stages'
 import { LogLevels } from '@interfaces/Logger'
 import stageManager from '@services/StageManager'
 import { CallbackQuery } from 'node-telegram-bot-api'
 import { findOrCreateUser, mapUser } from '@utils/users'
 import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
-import { showPhotosToPdfConvertMenu } from '@controllers/menus/photos-to-pdf'
+import { showPhotosToPdfConvertMenu } from '@controllers/menus/converting/photos-to-pdf'
 
 // show user converting from photos to pdf menu
 bot.on('callback_query', async (callback: CallbackQuery) => {
     try {
-        if (callback.data !== 'photos-to-pdf') return
+        if (callback.data !== Stages.PHOTOS_TO_PDF) return
         const processTime = new Date()
 
         await findOrCreateUser(mapUser(callback.from))
@@ -24,7 +25,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
             isConvertingInProcess: false,
         }
 
-        stageManager.setStageForUser(callback.from.id, 'photos-to-pdf', convertPhotosToPdfStageInfo)
+        stageManager.setStageForUser(callback.from.id, Stages.PHOTOS_TO_PDF, convertPhotosToPdfStageInfo)
 
         await showPhotosToPdfConvertMenu(callback.from.id)
 
@@ -32,14 +33,14 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
 
         logger.log(
             LogLevels.INFO,
-            "Click 'photos-to-pdf' from start menu",
+            `Click '${Stages.PHOTOS_TO_PDF}' from start menu`,
             `USER: ${JSON.stringify(callback)}`,
             processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
         )
     } catch (err) {
         logger.log(
             LogLevels.ERROR,
-            "Click 'photos-to-pdf' from start menu",
+            `Click '${Stages.PHOTOS_TO_PDF}' from start menu`,
             `USER: ${JSON.stringify(callback)}\nERROR: ${JSON.stringify(err)}`,
             0,
         )

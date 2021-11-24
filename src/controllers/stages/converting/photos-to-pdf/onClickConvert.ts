@@ -3,6 +3,7 @@ import bot from '@bot'
 import path from 'path'
 import PDFDocument from 'pdfkit'
 import logger from '@services/Logger'
+import { Stages } from '@interfaces/Stages'
 import { getPhotoSize } from '@utils/photos'
 import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
@@ -15,7 +16,11 @@ import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
 // if user click on "CONVERT" button
 bot.on('message', async (msg: Message) => {
     try {
-        if (msg.text !== 'Конвертировать' || !msg.from || !stageManager.isUserInStage(msg.from.id, 'photos-to-pdf')) {
+        if (
+            msg.text !== 'Конвертировать' ||
+            !msg.from ||
+            !stageManager.isUserInStage(msg.from.id, Stages.PHOTOS_TO_PDF)
+        ) {
             return
         }
         const processTime = new Date()
@@ -37,7 +42,7 @@ bot.on('message', async (msg: Message) => {
         }
 
         userStageData.isConvertingInProcess = true
-        stageManager.setStageForUser(userId, 'photos-to-pdf', userStageData)
+        stageManager.setStageForUser(userId, Stages.PHOTOS_TO_PDF, userStageData)
 
         const convertingMessage: Message = await bot.sendMessage(userId, 'В процессе конвертации...', {
             reply_markup: { remove_keyboard: true },
@@ -83,17 +88,17 @@ bot.on('message', async (msg: Message) => {
 
                 logger.log(
                     LogLevels.INFO,
-                    "Send document in 'photos-to-pdf' menu",
+                    `Send document in '${Stages.PHOTOS_TO_PDF}' menu`,
                     `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(userStageData)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
 
                 await showStartMenu(userId)
-                stageManager.setStageForUser(userId, 'start')
+                stageManager.setStageForUser(userId, Stages.START)
             } catch (err) {
                 logger.log(
                     LogLevels.ERROR,
-                    "Send document in 'photos-to-pdf' menu",
+                    `Send document in '${Stages.PHOTOS_TO_PDF}' menu`,
                     `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(
                         userStageData,
                     )}\nERROR: ${JSON.stringify(err)}`,
