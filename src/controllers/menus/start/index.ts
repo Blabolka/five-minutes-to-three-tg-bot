@@ -1,5 +1,6 @@
-import { InlineKeyboardButton, Message } from 'node-telegram-bot-api'
 import bot from '@bot'
+import { Stages } from '@interfaces/Stages'
+import { InlineKeyboardButton, Message } from 'node-telegram-bot-api'
 
 export async function showStartMenu(chatId: number): Promise<Message> {
     await bot.sendMessage(chatId, 'Добро пожаловать!', {
@@ -15,9 +16,7 @@ export async function showStartMenu(chatId: number): Promise<Message> {
 }
 
 function getStartMenuKeyboard(): InlineKeyboardButton[][] {
-    const photosToPdfButton: InlineKeyboardButton = { text: 'Фото в .pdf', callback_data: 'photos-to-pdf' }
-    const voiceMessageToMP3: InlineKeyboardButton = { text: 'Войсы в .mp3', callback_data: 'voice-to-mp3' }
-    const videoNoteToMP4: InlineKeyboardButton = { text: 'Кружки в .mp4', callback_data: 'video-note-to-mp4' }
+    const convertingMenu: InlineKeyboardButton = { text: 'Конвертация', callback_data: Stages.CONVERTING_MENU }
 
-    return [[photosToPdfButton], [voiceMessageToMP3], [videoNoteToMP4]]
+    return [[convertingMenu]]
 }

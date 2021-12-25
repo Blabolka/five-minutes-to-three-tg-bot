@@ -1,11 +1,12 @@
 import bot from '@bot'
 import logger from '@services/Logger'
 import sanitize from 'sanitize-filename'
+import { Stages } from '@interfaces/Stages'
 import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
 import { findOrCreateUser, mapUser } from '@utils/users'
-import { PhotosToPdfConvertingInfo } from '@common/interfaces/PhotosToPdf'
+import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 
 // if user sent new output file name
 bot.on('message', async (msg: Message) => {
@@ -14,9 +15,9 @@ bot.on('message', async (msg: Message) => {
             msg.from &&
             msg.text &&
             msg.text.length < 250 &&
-            stageManager.isUserInStage(msg.from.id, 'photos-to-pdf') &&
-            !msg.entities &&
-            msg.text !== 'Конвертировать'
+            msg.text !== 'Конвертировать' &&
+            stageManager.isUserInStage(msg.from.id, Stages.PHOTOS_TO_PDF) &&
+            !msg.entities
         ) {
             const processTime = new Date()
 
@@ -28,7 +29,7 @@ bot.on('message', async (msg: Message) => {
 
             if (sanitizedFileName) {
                 userStageData.outputFileName = sanitizedFileName
-                stageManager.setStageForUser(msg.from.id, 'photos-to-pdf', userStageData)
+                stageManager.setStageForUser(msg.from.id, Stages.PHOTOS_TO_PDF, userStageData)
 
                 await bot.sendMessage(
                     msg.from.id,
@@ -44,7 +45,7 @@ bot.on('message', async (msg: Message) => {
 
                 logger.log(
                     LogLevels.INFO,
-                    `Change filename in 'photos-to-pdf' menu. New filename is ${sanitizedFileName}`,
+                    `Change filename in '${Stages.PHOTOS_TO_PDF}' menu. New filename is ${sanitizedFileName}`,
                     `USER: ${JSON.stringify(msg)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
@@ -56,7 +57,7 @@ bot.on('message', async (msg: Message) => {
 
                 logger.log(
                     LogLevels.INFO,
-                    "Change filename in 'photos-to-pdf' menu. Filename includes incorrect symbols",
+                    `Change filename in '${Stages.PHOTOS_TO_PDF}' menu. Filename includes incorrect symbols`,
                     `USER: ${JSON.stringify(msg)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
@@ -65,7 +66,7 @@ bot.on('message', async (msg: Message) => {
     } catch (err) {
         logger.log(
             LogLevels.ERROR,
-            "Change filename in 'photos-to-pdf' menu",
+            `Change filename in '${Stages.PHOTOS_TO_PDF}' menu`,
             `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
             0,
         )

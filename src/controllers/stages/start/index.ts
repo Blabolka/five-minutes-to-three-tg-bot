@@ -1,5 +1,6 @@
 import bot from '@bot'
 import logger from '@services/Logger'
+import { Stages } from '@interfaces/Stages'
 import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
@@ -14,7 +15,7 @@ bot.on('message', async (msg: Message) => {
 
             await findOrCreateUser(mapUser(msg.from))
 
-            stageManager.setStageForUser(msg.from.id, 'start')
+            stageManager.setStageForUser(msg.from.id, Stages.START)
 
             await showStartMenu(msg.from.id)
 

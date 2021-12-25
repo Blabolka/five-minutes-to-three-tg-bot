@@ -14,7 +14,7 @@ class StageManager {
         })
     }
 
-    setStageForUser(userId: number, stage: Stages, stageData = {}) {
+    setStageForUser(userId: number, stage: Stages, stageData: any | undefined = undefined) {
         const userInStage = this.#getUserInStage(userId)
 
         if (userInStage) {
@@ -28,7 +28,7 @@ class StageManager {
     getUserStageData(userId: number): any | undefined {
         const userInStage = this.#getUserInStage(userId)
 
-        if (userInStage) {
+        if (userInStage?.stageData) {
             return Object.assign({}, userInStage.stageData)
         }
 
