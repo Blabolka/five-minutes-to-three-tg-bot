@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser'
-import commands from '@common/commands.json'
+import commands from '@common/commands.js'
 import TelegramBot from 'node-telegram-bot-api'
 import express, { Application, Request, Response, Router } from 'express'
 
