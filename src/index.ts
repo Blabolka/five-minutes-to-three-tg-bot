@@ -13,4 +13,3 @@ import '@db'
 // import all stages
 import '@controllers/stages/start/index'
 import '@controllers/stages/converting/index'
-import '@controllers/stages/modification/index'

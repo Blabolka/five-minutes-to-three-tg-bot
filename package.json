@@ -1,5 +1,5 @@
 {
-  "name": "univassist-tg-bot",
+  "name": "five-minutes-to-three-tg-bot",
   "version": "1.0.0",
   "description": "Test description of bot",
   "main": "dist/src/index.js",
