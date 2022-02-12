@@ -24,14 +24,14 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
         logger.log(
             LogLevels.INFO,
             `Click '${Stages.VIDEO_NOTE_TO_MP4}' from start menu`,
-            `USER: ${JSON.stringify(callback)}`,
+            `USER: ${JSON.stringify(callback.from, null, 4)}`,
             processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
         )
     } catch (err) {
         logger.log(
             LogLevels.ERROR,
             `Click '${Stages.VIDEO_NOTE_TO_MP4}' from start menu`,
-            `USER: ${JSON.stringify(callback)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(callback.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }
@@ -59,7 +59,7 @@ bot.on('video_note', async (msg: Message) => {
             logger.log(
                 LogLevels.INFO,
                 `Send file in '${Stages.VIDEO_NOTE_TO_MP4}' menu`,
-                `USER: ${JSON.stringify(msg)}`,
+                `USER: ${JSON.stringify(msg, null, 4)}`,
                 processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
             )
         }
@@ -67,7 +67,7 @@ bot.on('video_note', async (msg: Message) => {
         logger.log(
             LogLevels.ERROR,
             `Send file in '${Stages.VIDEO_NOTE_TO_MP4}' menu`,
-            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(msg, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }

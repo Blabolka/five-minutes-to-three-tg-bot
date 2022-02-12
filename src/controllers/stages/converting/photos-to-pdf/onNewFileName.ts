@@ -46,7 +46,7 @@ bot.on('message', async (msg: Message) => {
                 logger.log(
                     LogLevels.INFO,
                     `Change filename in '${Stages.PHOTOS_TO_PDF}' menu. New filename is ${sanitizedFileName}`,
-                    `USER: ${JSON.stringify(msg)}`,
+                    `USER: ${JSON.stringify(msg.from, null, 4)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
             } else {
@@ -58,7 +58,7 @@ bot.on('message', async (msg: Message) => {
                 logger.log(
                     LogLevels.INFO,
                     `Change filename in '${Stages.PHOTOS_TO_PDF}' menu. Filename includes incorrect symbols`,
-                    `USER: ${JSON.stringify(msg)}`,
+                    `USER: ${JSON.stringify(msg.from, null, 4)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
             }
@@ -67,7 +67,7 @@ bot.on('message', async (msg: Message) => {
         logger.log(
             LogLevels.ERROR,
             `Change filename in '${Stages.PHOTOS_TO_PDF}' menu`,
-            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(msg.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }

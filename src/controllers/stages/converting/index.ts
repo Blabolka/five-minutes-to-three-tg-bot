@@ -29,10 +29,15 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
         logger.log(
             LogLevels.INFO,
             'Converting menu',
-            `USER: ${JSON.stringify(callback.from)}`,
+            `USER: ${JSON.stringify(callback.from, null, 4)}`,
             processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
         )
     } catch (err) {
-        logger.log(LogLevels.ERROR, 'Converting menu', `USER: ${JSON.stringify(callback.from)}`, 0)
+        logger.log(
+            LogLevels.ERROR,
+            'Converting menu',
+            `USER: ${JSON.stringify(callback.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
+            0,
+        )
     }
 })

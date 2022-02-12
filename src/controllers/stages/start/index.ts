@@ -22,11 +22,16 @@ bot.on('message', async (msg: Message) => {
             logger.log(
                 LogLevels.INFO,
                 'Start menu',
-                `USER: ${JSON.stringify(msg)}`,
+                `USER: ${JSON.stringify(msg.from, null, 4)}`,
                 processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
             )
         }
     } catch (err) {
-        logger.log(LogLevels.ERROR, 'Start menu', `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`, 0)
+        logger.log(
+            LogLevels.ERROR,
+            'Start menu',
+            `USER: ${JSON.stringify(msg.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
+            0,
+        )
     }
 })

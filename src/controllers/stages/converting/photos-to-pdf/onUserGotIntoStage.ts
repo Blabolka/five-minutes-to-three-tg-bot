@@ -34,14 +34,14 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
         logger.log(
             LogLevels.INFO,
             `Click '${Stages.PHOTOS_TO_PDF}' from start menu`,
-            `USER: ${JSON.stringify(callback)}`,
+            `USER: ${JSON.stringify(callback.from, null, 4)}`,
             processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
         )
     } catch (err) {
         logger.log(
             LogLevels.ERROR,
             `Click '${Stages.PHOTOS_TO_PDF}' from start menu`,
-            `USER: ${JSON.stringify(callback)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(callback.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }

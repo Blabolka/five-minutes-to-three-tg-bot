@@ -89,7 +89,7 @@ bot.on('message', async (msg: Message) => {
                 logger.log(
                     LogLevels.INFO,
                     `Send document in '${Stages.PHOTOS_TO_PDF}' menu`,
-                    `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(userStageData)}`,
+                    `USER: ${JSON.stringify(msg.from, null, 4)}\nSTAGE_DATA: ${JSON.stringify(userStageData, null, 4)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
 
@@ -99,9 +99,11 @@ bot.on('message', async (msg: Message) => {
                 logger.log(
                     LogLevels.ERROR,
                     `Send document in '${Stages.PHOTOS_TO_PDF}' menu`,
-                    `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(
+                    `USER: ${JSON.stringify(msg.from, null, 4)}\nSTAGE_DATA: ${JSON.stringify(
                         userStageData,
-                    )}\nERROR: ${JSON.stringify(err)}`,
+                        null,
+                        4,
+                    )}\nERROR: ${JSON.stringify(err, null, 4)}`,
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
             }
@@ -116,9 +118,11 @@ bot.on('message', async (msg: Message) => {
             logger.log(
                 LogLevels.ERROR,
                 'Converting photos-to-pdf',
-                `USER: ${JSON.stringify(msg)}\nSTAGE_DATA: ${JSON.stringify(userStageData)}\nERROR: ${JSON.stringify(
-                    err,
-                )}`,
+                `USER: ${JSON.stringify(msg.from, null, 4)}\nSTAGE_DATA: ${JSON.stringify(
+                    userStageData,
+                    null,
+                    4,
+                )}\nERROR: ${JSON.stringify(err, null, 4)}`,
                 processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
             )
         })
@@ -126,7 +130,7 @@ bot.on('message', async (msg: Message) => {
         logger.log(
             LogLevels.ERROR,
             'Converting photos-to-pdf',
-            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(msg.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }

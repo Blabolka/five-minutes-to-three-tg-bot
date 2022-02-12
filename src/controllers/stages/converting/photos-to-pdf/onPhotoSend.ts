@@ -50,7 +50,7 @@ bot.on('photo', async (msg: Message) => {
             logger.log(
                 LogLevels.INFO,
                 `User send photo as photo in '${Stages.PHOTOS_TO_PDF}' menu`,
-                `USER: ${JSON.stringify(msg)}`,
+                `USER: ${JSON.stringify(msg.from, null, 4)}`,
                 processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
             )
         }
@@ -58,7 +58,7 @@ bot.on('photo', async (msg: Message) => {
         logger.log(
             LogLevels.ERROR,
             `User send photo as photo in '${Stages.PHOTOS_TO_PDF}' menu`,
-            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(msg.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }
@@ -103,7 +103,7 @@ bot.on('document', async (msg: Message) => {
             logger.log(
                 LogLevels.INFO,
                 `User send photo as file in '${Stages.PHOTOS_TO_PDF}' menu`,
-                `USER: ${JSON.stringify(msg)}`,
+                `USER: ${JSON.stringify(msg.from, null, 4)}`,
                 processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
             )
         }
@@ -111,7 +111,7 @@ bot.on('document', async (msg: Message) => {
         logger.log(
             LogLevels.ERROR,
             `User send photo as file in '${Stages.PHOTOS_TO_PDF}' menu`,
-            `USER: ${JSON.stringify(msg)}\nERROR: ${JSON.stringify(err)}`,
+            `USER: ${JSON.stringify(msg.from, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}`,
             0,
         )
     }
