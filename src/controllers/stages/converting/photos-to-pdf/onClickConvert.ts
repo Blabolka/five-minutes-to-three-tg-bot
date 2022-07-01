@@ -6,12 +6,12 @@ import logger from '@services/Logger'
 import { Stages } from '@interfaces/Stages'
 import { getPhotoSize } from '@utils/photos'
 import { LogLevels } from '@interfaces/Logger'
-import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
+import { Message, User } from 'node-telegram-bot-api'
 import { showStartMenu } from '@controllers/menus/start'
-import { PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 import { downloadPhotosToPdf, matchPhotoSizeToPdf } from '@utils/photosToPdf'
 import { findOrCreateUser, getUserFilesDirectory, mapUser } from '@utils/users'
+import { PhotosToPdfFileInfo, PhotosToPdfConvertingInfo } from '@interfaces/PhotosToPdf'
 
 // if user click on "CONVERT" button
 bot.on('message', async (msg: Message) => {
@@ -25,13 +25,14 @@ bot.on('message', async (msg: Message) => {
         }
         const processTime = new Date()
 
+        const userFrom = msg.from
         const userId = msg.from.id
 
         await findOrCreateUser(mapUser(msg.from))
         const userStageData: PhotosToPdfConvertingInfo | undefined = stageManager.getUserStageData(userId)
 
         // check if user sent at least one file
-        if (!userStageData || !userStageData.fileIds.length) {
+        if (!userStageData || !userStageData.files.length) {
             await bot.sendMessage(userId, '‼ Нужно отправить как минимум 1 файл ‼')
             return
         }
@@ -51,7 +52,18 @@ bot.on('message', async (msg: Message) => {
         const dirPath: string = getUserFilesDirectory(msg.from)
         const outputFileName: string = userStageData.outputFileName + '.pdf'
         const outputFilePath: string = path.join(dirPath, outputFileName)
-        const downloadedFilesPath: string[] = await downloadPhotosToPdf(userStageData.fileIds, dirPath)
+        const downloadedFilesPath: string[] = await downloadPhotosToPdf(userStageData.files, dirPath, {
+            onDownloadFileError: (file: PhotosToPdfFileInfo, error) => {
+                onDownloadFileError(file, error, userFrom)
+            },
+        })
+
+        if (!downloadedFilesPath.length) {
+            await bot.sendMessage(userId, '‼ Во время загрузки файлов произошла ошибка! Попробуйте ещё раз.')
+            await showStartMenu(userId)
+            stageManager.setStageForUser(userId, Stages.START)
+            return
+        }
 
         // set up document
         const defaultMargins = { top: 0, left: 0, bottom: 0, right: 0 }
@@ -135,3 +147,16 @@ bot.on('message', async (msg: Message) => {
         )
     }
 })
+
+const onDownloadFileError = (file: PhotosToPdfFileInfo, err, user: User) => {
+    logger.log(
+        LogLevels.ERROR,
+        'Downloading file error in photos-to-pdf',
+        `USER: ${JSON.stringify(user, null, 4)}\nERROR: ${JSON.stringify(err, null, 4)}\nFile info: ${JSON.stringify(
+            file,
+            null,
+            4,
+        )}`,
+        0,
+    )
+}
