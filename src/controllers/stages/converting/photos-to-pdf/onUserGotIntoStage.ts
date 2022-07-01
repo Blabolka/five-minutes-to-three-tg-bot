@@ -18,7 +18,7 @@ bot.on('callback_query', async (callback: CallbackQuery) => {
         await findOrCreateUser(mapUser(callback.from))
 
         const convertPhotosToPdfStageInfo: PhotosToPdfConvertingInfo = {
-            fileIds: [],
+            files: [],
             filesSummarySize: 0,
             sizeLimitMessageWasShown: false,
             outputFileName: sanitize(callback.from.first_name) || 'filename',

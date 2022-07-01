@@ -1,5 +1,10 @@
+export interface PhotosToPdfFileInfo {
+    fileId: string
+    fileMimeType?: string
+    fileSentTime: Date
+}
 export interface PhotosToPdfConvertingInfo {
-    fileIds: string[]
+    files: PhotosToPdfFileInfo[]
     outputFileName: string
     filesSummarySize: number
     isConvertingInProcess: boolean

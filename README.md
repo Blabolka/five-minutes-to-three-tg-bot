@@ -5,6 +5,7 @@ PORT=3000
 MONGO_CONNECT_URI=*database connection string*
 URL=*url for webhook connection*
 
+CONSOLE_LOGGER_ENABLED=true
 SLACK_LOGGER_ENABLED=true
 SLACK_LOGGER_ACCESS_TOKEN=xoxb-*your token from slack app*
 SLACK_LOGGER_CHANNEL_ID=*channel id from slack workspace*
