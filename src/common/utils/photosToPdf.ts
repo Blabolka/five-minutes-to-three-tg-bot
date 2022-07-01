@@ -4,27 +4,49 @@ import path from 'path'
 import sharp from 'sharp'
 import { nanoid } from 'nanoid'
 import { getPhotoSize } from '@utils/photos'
-import { Dimensions } from '@interfaces/Photos'
+import { PhotosToPdfFileInfo } from '@interfaces/PhotosToPdf'
+import { AllowedPhotoMimeTypes, Dimensions } from '@interfaces/Photos'
 
-export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): Promise<string[]> {
+export function isIncorrectMimeType(mimeType: string = ''): boolean {
+    const correctMimeTypes: string[] = Object.values(AllowedPhotoMimeTypes)
+    return !correctMimeTypes.includes(mimeType)
+}
+
+interface DownloadPhotosToPdfCallbacks {
+    onDownloadFileError?: (file: PhotosToPdfFileInfo, error) => void
+}
+
+export async function downloadPhotosToPdf(
+    files: PhotosToPdfFileInfo[],
+    dirPath: string,
+    callbacks: DownloadPhotosToPdfCallbacks = {},
+): Promise<string[]> {
+    // safe download is need when image expired in time (was sent more than 1 hour ago)
+    const safeDownloadFile = async (file: PhotosToPdfFileInfo, dirPath): Promise<string | undefined> => {
+        try {
+            return bot.downloadFile(file.fileId, dirPath)
+        } catch (err) {
+            if (callbacks.onDownloadFileError) {
+                callbacks.onDownloadFileError(file, err)
+            }
+            return undefined
+        }
+    }
+
     const result: string[] = []
 
-    for (const fileId of fileIds) {
+    for (const file of files) {
+        const photoFilePath: string | undefined = await safeDownloadFile(file, dirPath)
+        if (!photoFilePath) continue
+
         // creating new file with sizes that match pdf file
-        const photoFilePath: string = await bot.downloadFile(fileId, dirPath)
         const fileExtension = path.extname(photoFilePath)
         const newPhotoFilePath = path.join(path.dirname(photoFilePath), nanoid()) + fileExtension
 
         const photoDimensions: Dimensions = await getPhotoSize(photoFilePath)
 
-        const sharpPhoto = sharp(photoFilePath)
-
-        // compress image size
-        if (fileExtension === '.jpg') {
-            sharpPhoto.jpeg({ quality: 95 })
-        } else {
-            sharpPhoto.png({ quality: 95 })
-        }
+        const sharpPhoto: sharp.Sharp = sharp(photoFilePath)
+        compressImage(sharpPhoto, file.fileMimeType || '', fileExtension)
 
         // addition rotate if need
         await sharpPhoto.rotate(getRotationAngle(photoDimensions.orientation)).toFile(newPhotoFilePath)
@@ -36,6 +58,27 @@ export async function downloadPhotosToPdf(fileIds: string[], dirPath: string): P
     }
 
     return result
+}
+
+function compressImage(sharpPhoto: sharp.Sharp, fileMimeType: string, fileExtension: string) {
+    const defaultQualityValue = 95
+    switch (fileMimeType) {
+        case AllowedPhotoMimeTypes.JPEG: {
+            sharpPhoto.jpeg({ quality: defaultQualityValue })
+            break
+        }
+        case AllowedPhotoMimeTypes.PNG: {
+            sharpPhoto.png({ quality: defaultQualityValue })
+            break
+        }
+        default: {
+            if (fileExtension === '.jpg') {
+                sharpPhoto.jpeg({ quality: defaultQualityValue })
+            } else {
+                sharpPhoto.png({ quality: defaultQualityValue })
+            }
+        }
+    }
 }
 
 function getRotationAngle(orientationExif: number): number {
