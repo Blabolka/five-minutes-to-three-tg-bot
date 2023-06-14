@@ -2,6 +2,7 @@ import bot from '@bot'
 import logger from '@services/Logger'
 import sanitize from 'sanitize-filename'
 import { Stages } from '@interfaces/Stages'
+import { BOT_TEXTS } from '@constants/texts'
 import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
@@ -15,7 +16,7 @@ bot.on('message', async (msg: Message) => {
             msg.from &&
             msg.text &&
             msg.text.length < 250 &&
-            msg.text !== 'Конвертировать' &&
+            msg.text !== BOT_TEXTS.BOTTOM_MENU_CONVERT &&
             stageManager.isUserInStage(msg.from.id, Stages.PHOTOS_TO_PDF) &&
             !msg.entities
         ) {
@@ -33,8 +34,10 @@ bot.on('message', async (msg: Message) => {
 
                 await bot.sendMessage(
                     msg.from.id,
-                    'Имя исходного файла было успешно заменено ✅\n' +
-                        'Новое имя файла: ' +
+                    BOT_TEXTS.FILENAME_WAS_CHANGED +
+                        '\n' +
+                        BOT_TEXTS.NEW_FILENAME +
+                        ' ' +
                         '<b>' +
                         sanitizedFileName +
                         '</b>',
@@ -50,10 +53,7 @@ bot.on('message', async (msg: Message) => {
                     processTime.setTime(new Date().getTime() - processTime.getTime()) / 1000,
                 )
             } else {
-                await bot.sendMessage(
-                    msg.from.id,
-                    '‼ Некорректное название файла.\n' + 'Имя файла не должно содержать следующих знаков: \\/:*?"<>|',
-                )
+                await bot.sendMessage(msg.from.id, BOT_TEXTS.INCORRECT_FILENAME_MESSAGE)
 
                 logger.log(
                     LogLevels.INFO,

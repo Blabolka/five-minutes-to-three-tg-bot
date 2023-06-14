@@ -1,6 +1,7 @@
 import bot from '@bot'
 import logger from '@services/Logger'
 import { Stages } from '@interfaces/Stages'
+import { BOT_TEXTS } from '@constants/texts'
 import { LogLevels } from '@interfaces/Logger'
 import { Message } from 'node-telegram-bot-api'
 import stageManager from '@services/StageManager'
@@ -80,7 +81,7 @@ bot.on('document', async (msg: Message) => {
             }
 
             if (isIncorrectMimeType(msg.document.mime_type)) {
-                await bot.sendMessage(msg.from.id, '‼ Принимаются только файлы типа .jpg и .png')
+                await bot.sendMessage(msg.from.id, BOT_TEXTS.ONLY_CONCRETE_TYPES_OF_FILES_APPLIES_MESSAGE)
                 logger.log(
                     LogLevels.WARN,
                     `Incorrect photo as file in '${Stages.PHOTOS_TO_PDF}' menu`,

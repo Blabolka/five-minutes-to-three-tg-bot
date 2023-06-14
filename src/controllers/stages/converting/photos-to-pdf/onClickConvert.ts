@@ -4,6 +4,7 @@ import path from 'path'
 import PDFDocument from 'pdfkit'
 import logger from '@services/Logger'
 import { Stages } from '@interfaces/Stages'
+import { BOT_TEXTS } from '@constants/texts'
 import { getPhotoSize } from '@utils/photos'
 import { LogLevels } from '@interfaces/Logger'
 import stageManager from '@services/StageManager'
@@ -17,7 +18,7 @@ import { PhotosToPdfFileInfo, PhotosToPdfConvertingInfo } from '@interfaces/Phot
 bot.on('message', async (msg: Message) => {
     try {
         if (
-            msg.text !== 'Конвертировать' ||
+            msg.text !== BOT_TEXTS.BOTTOM_MENU_CONVERT ||
             !msg.from ||
             !stageManager.isUserInStage(msg.from.id, Stages.PHOTOS_TO_PDF)
         ) {
@@ -33,7 +34,7 @@ bot.on('message', async (msg: Message) => {
 
         // check if user sent at least one file
         if (!userStageData || !userStageData.files.length) {
-            await bot.sendMessage(userId, '‼ Нужно отправить как минимум 1 файл ‼')
+            await bot.sendMessage(userId, BOT_TEXTS.AT_LEAST_ONE_FILE_REQUIRED_MESSAGE)
             return
         }
 
@@ -45,7 +46,7 @@ bot.on('message', async (msg: Message) => {
         userStageData.isConvertingInProcess = true
         stageManager.setStageForUser(userId, Stages.PHOTOS_TO_PDF, userStageData)
 
-        const convertingMessage: Message = await bot.sendMessage(userId, 'В процессе конвертации...', {
+        const convertingMessage: Message = await bot.sendMessage(userId, BOT_TEXTS.IN_CONVERT_PROCESS, {
             reply_markup: { remove_keyboard: true },
         })
 
@@ -59,7 +60,7 @@ bot.on('message', async (msg: Message) => {
         })
 
         if (!downloadedFilesPath.length) {
-            await bot.sendMessage(userId, '‼ Во время загрузки файлов произошла ошибка! Попробуйте ещё раз.')
+            await bot.sendMessage(userId, BOT_TEXTS.CONVERT_FAILED_MESSAGE)
             await showStartMenu(userId)
             stageManager.setStageForUser(userId, Stages.START)
             return
